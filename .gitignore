@@ -1,0 +1,63 @@
+# ─── Сборка и зависимости ────────────────────────────────────────────────────
+
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Выход TypeSpec-компилятора. По умолчанию лежит в tsp-output/, но мы
+# перенаправили эмиттер в contract/, так что этот шаблон сейчас не нужен.
+# Оставлен на случай, если путь вывода сменят обратно.
+tsp-output/
+
+# ─── Артефакты выполнения ─────────────────────────────────────────────────────
+
+# Локальная база данных (SQLite). Создаётся при первом запуске сервера.
+booking.db
+booking.db-journal
+booking.db-wal
+booking.db-shm
+
+# Временные файлы тестов
+test-results/
+playwright-report/
+playwright/.cache/
+lighthouse-report/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── ОС и редакторы ──────────────────────────────────────────────────────────
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+
+# IDE
+.idea/
+.vscode/
+!.vscode/extensions.json
+*.swp
+*.swo
+*.swn
+
+# ─── Локальные настройки проекта ──────────────────────────────────────────────
+
+# Локальные переопределения переменных окружения
+.env
+.env.local
+.env.*.local

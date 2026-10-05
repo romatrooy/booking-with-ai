@@ -1,0 +1,9 @@
+{
+  "name": "@booking/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Заглушка воркспейса e2e. Сквозные тесты будут добавлены после сервера.",
+  "scripts": {
+    "e2e": "echo \"e2e: nothing to run yet\" && exit 0"
+  }
+}

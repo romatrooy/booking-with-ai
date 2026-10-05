@@ -1,0 +1,384 @@
+openapi: 3.0.0
+info:
+  title: Сервис бронирования тайм-слотов
+  version: 0.0.0
+tags: []
+paths:
+  /api/activities:
+    get:
+      operationId: Activities_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+    post:
+      operationId: Activities_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityCreate'
+  /api/bookings:
+    get:
+      operationId: Bookings_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+    post:
+      operationId: Bookings_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+  /api/bookings/{booking_id}/cancel:
+    post:
+      operationId: Bookings_cancel
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/schedules:
+    get:
+      operationId: Schedules_list
+      parameters:
+        - name: activity_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Schedule'
+    post:
+      operationId: Schedules_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleCreate'
+  /api/slots:
+    get:
+      operationId: Slots_list
+      parameters:
+        - name: activity_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+          explode: false
+        - name: date_from
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: date_to
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Slot'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+components:
+  schemas:
+    Activity:
+      type: object
+      required:
+        - id
+        - name
+        - default_duration_minutes
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        default_duration_minutes:
+          type: integer
+          format: int32
+          minimum: 5
+          maximum: 480
+    ActivityCreate:
+      type: object
+      required:
+        - name
+        - default_duration_minutes
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        default_duration_minutes:
+          type: integer
+          format: int32
+          minimum: 5
+          maximum: 480
+    ApiError:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    Booking:
+      type: object
+      required:
+        - id
+        - activity_id
+        - date
+        - start_time
+        - guest_name
+        - guest_email
+        - status
+        - created_at
+      properties:
+        id:
+          type: integer
+          format: int32
+        activity_id:
+          type: integer
+          format: int32
+        date:
+          type: string
+        start_time:
+          type: string
+        guest_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        guest_email:
+          type: string
+          minLength: 1
+          maxLength: 200
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        created_at:
+          type: string
+    BookingCreate:
+      type: object
+      required:
+        - activity_id
+        - date
+        - start_time
+        - guest_name
+        - guest_email
+      properties:
+        activity_id:
+          type: integer
+          format: int32
+        date:
+          type: string
+        start_time:
+          type: string
+        guest_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        guest_email:
+          type: string
+          minLength: 1
+          maxLength: 200
+    BookingStatus:
+      type: string
+      enum:
+        - active
+        - cancelled
+    Schedule:
+      type: object
+      required:
+        - id
+        - activity_id
+        - weekdays
+        - start_time
+        - end_time
+        - duration_minutes
+      properties:
+        id:
+          type: integer
+          format: int32
+        activity_id:
+          type: integer
+          format: int32
+        weekdays:
+          type: array
+          items:
+            $ref: '#/components/schemas/Weekday'
+        start_time:
+          type: string
+        end_time:
+          type: string
+        duration_minutes:
+          type: integer
+          format: int32
+          minimum: 5
+          maximum: 480
+    ScheduleCreate:
+      type: object
+      required:
+        - activity_id
+        - weekdays
+        - start_time
+        - end_time
+        - duration_minutes
+      properties:
+        activity_id:
+          type: integer
+          format: int32
+        weekdays:
+          type: array
+          items:
+            $ref: '#/components/schemas/Weekday'
+        start_time:
+          type: string
+        end_time:
+          type: string
+        duration_minutes:
+          type: integer
+          format: int32
+          minimum: 5
+          maximum: 480
+    Slot:
+      type: object
+      required:
+        - activity_id
+        - date
+        - start_time
+        - duration_minutes
+      properties:
+        activity_id:
+          type: integer
+          format: int32
+        date:
+          type: string
+        start_time:
+          type: string
+        duration_minutes:
+          type: integer
+          format: int32
+          minimum: 5
+          maximum: 480
+    ValidationError:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        details:
+          type: string
+    Weekday:
+      type: string
+      enum:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+        - sat
+        - sun

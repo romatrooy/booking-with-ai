@@ -1,0 +1,10 @@
+{
+  "name": "@booking/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Заглушка воркспейса web. Код будет добавлен после спецификации.",
+  "scripts": {
+    "build": "echo \"web: nothing to build yet\" && exit 0",
+    "dev": "echo \"web: nothing to dev yet\" && exit 0"
+  }
+}

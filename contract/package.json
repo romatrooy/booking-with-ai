@@ -1,0 +1,17 @@
+{
+  "name": "@booking/contract",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Контракт API на TypeSpec и собранный OpenAPI 3.1.",
+  "type": "module",
+  "scripts": {
+    "build": "tsp compile main.tsp --emit @typespec/openapi3"
+  },
+  "dependencies": {
+    "@typespec/compiler": "1.16.0",
+    "@typespec/http": "1.16.0",
+    "@typespec/rest": "0.86.0",
+    "@typespec/openapi": "1.16.0",
+    "@typespec/openapi3": "1.16.0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "booking-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Сервис бронирования тайм-слотов (учебный проект курса «ИИ для разработчиков»).",
+  "workspaces": [
+    "contract",
+    "server",
+    "web",
+    "e2e"
+  ],
+  "scripts": {
+    "contract:build": "npm run build --workspace=contract",
+    "typecheck": "tsc -p server/tsconfig.json",
+    "test": "npm test --workspace=server",
+    "build": "npm run build --workspace=contract && npm run build --workspace=server && npm run build --workspace=web",
+    "start": "npm start --workspace=server",
+    "seed": "npm run seed --workspace=server",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:web": "npm run dev --workspace=web",
+    "e2e": "npm run e2e --workspace=e2e"
+  }
+}

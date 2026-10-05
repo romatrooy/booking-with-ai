@@ -1,0 +1,13 @@
+{
+  "name": "@booking/server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Заглушка воркспейса server. Код будет добавлен после спецификации.",
+  "scripts": {
+    "build": "echo \"server: nothing to build yet\" && exit 0",
+    "dev": "echo \"server: nothing to dev yet\" && exit 0",
+    "start": "echo \"server: nothing to start yet\" && exit 0",
+    "seed": "echo \"server: nothing to seed yet\" && exit 0",
+    "test": "echo \"server: nothing to test yet\" && exit 0"
+  }
+}
