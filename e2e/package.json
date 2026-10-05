@@ -2,8 +2,15 @@
   "name": "@booking/e2e",
   "version": "0.0.0",
   "private": true,
-  "description": "Заглушка воркспейса e2e. Сквозные тесты будут добавлены после сервера.",
+  "type": "module",
+  "description": "Сквозные тесты на Playwright.",
   "scripts": {
-    "e2e": "echo \"e2e: nothing to run yet\" && exit 0"
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.10.5"
   }
 }
