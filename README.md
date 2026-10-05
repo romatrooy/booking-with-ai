@@ -380,7 +380,7 @@ services:
   booking:
     image: ghcr.io/romatrooy/ait_repo2:latest # вместо build: .
     ports:
-      - '8000:8000'
+      - "8000:8000"
     volumes:
       - booking-data:/data
     command: sh -c "node server/dist/seed.js && node server/dist/index.js"

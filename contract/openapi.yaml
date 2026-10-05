@@ -9,73 +9,73 @@ paths:
       operationId: Activities_list
       parameters: []
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Activity'
+                  $ref: "#/components/schemas/Activity"
     post:
       operationId: Activities_create
       parameters: []
       responses:
-        '201':
+        "201":
           description: The request has succeeded and a new resource has been created as a result.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Activity'
+                $ref: "#/components/schemas/Activity"
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
+                $ref: "#/components/schemas/ValidationError"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ActivityCreate'
+              $ref: "#/components/schemas/ActivityCreate"
   /api/bookings:
     get:
       operationId: Bookings_list
       parameters: []
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Booking'
+                  $ref: "#/components/schemas/Booking"
     post:
       operationId: Bookings_create
       parameters: []
       responses:
-        '201':
+        "201":
           description: The request has succeeded and a new resource has been created as a result.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Booking'
+                $ref: "#/components/schemas/Booking"
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 anyOf:
-                  - $ref: '#/components/schemas/ValidationError'
-                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: "#/components/schemas/ValidationError"
+                  - $ref: "#/components/schemas/ApiError"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingCreate'
+              $ref: "#/components/schemas/BookingCreate"
   /api/bookings/{booking_id}/cancel:
     post:
       operationId: Bookings_cancel
@@ -87,18 +87,18 @@ paths:
             type: integer
             format: int32
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Booking'
+                $ref: "#/components/schemas/Booking"
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiError'
+                $ref: "#/components/schemas/ApiError"
   /api/schedules:
     get:
       operationId: Schedules_list
@@ -111,36 +111,36 @@ paths:
             format: int32
           explode: false
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Schedule'
+                  $ref: "#/components/schemas/Schedule"
     post:
       operationId: Schedules_create
       parameters: []
       responses:
-        '201':
+        "201":
           description: The request has succeeded and a new resource has been created as a result.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Schedule'
+                $ref: "#/components/schemas/Schedule"
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
+                $ref: "#/components/schemas/ValidationError"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScheduleCreate'
+              $ref: "#/components/schemas/ScheduleCreate"
   /api/slots:
     get:
       operationId: Slots_list
@@ -165,20 +165,20 @@ paths:
             type: string
           explode: false
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Slot'
+                  $ref: "#/components/schemas/Slot"
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
+                $ref: "#/components/schemas/ValidationError"
 components:
   schemas:
     Activity:
@@ -257,7 +257,7 @@ components:
           minLength: 1
           maxLength: 200
         status:
-          $ref: '#/components/schemas/BookingStatus'
+          $ref: "#/components/schemas/BookingStatus"
         created_at:
           type: string
     BookingCreate:
@@ -308,7 +308,7 @@ components:
         weekdays:
           type: array
           items:
-            $ref: '#/components/schemas/Weekday'
+            $ref: "#/components/schemas/Weekday"
         start_time:
           type: string
         end_time:
@@ -333,7 +333,7 @@ components:
         weekdays:
           type: array
           items:
-            $ref: '#/components/schemas/Weekday'
+            $ref: "#/components/schemas/Weekday"
         start_time:
           type: string
         end_time:
