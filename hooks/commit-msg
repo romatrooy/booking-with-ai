@@ -1,0 +1,9 @@
+#!/bin/sh
+# commit-msg-хук. Проверяет формат Conventional Commits.
+#
+# См. подробности в hooks/pre-commit — зачем нужен sh-обёртка
+# без расширения рядом со скриптом .cjs.
+
+cd "$(dirname "$0")/.." || exit 1
+node "$(dirname "$0")/commit-msg.cjs" "$1"
+exit $?

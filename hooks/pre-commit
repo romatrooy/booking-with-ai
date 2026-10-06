@@ -1,0 +1,16 @@
+#!/bin/sh
+# pre-commit-хук. Запускает по порядку проверки из scripts/.
+#
+# Файл лежит под именем `pre-commit` без расширения — Git находит
+# хуки именно по этому имени. Shebang `#!/bin/sh` работает в обеих
+# средах: на Linux/macOS это системный /bin/sh, на Windows это
+# sh.exe из поставки Git for Windows (на этой машине лежит в
+# C:\Program Files\Git\usr\bin\sh.exe).
+#
+# Сам Node-скрипт лежит рядом в pre-commit.cjs. Он на CommonJS,
+# потому что в корне проекта `"type": "module"`, и без .cjs Node
+# пытается интерпретировать скрипт как ESM, где `require` не определён.
+
+cd "$(dirname "$0")/.." || exit 1
+node "$(dirname "$0")/pre-commit.cjs"
+exit $?

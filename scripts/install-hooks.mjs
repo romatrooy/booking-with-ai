@@ -11,17 +11,20 @@
 // Запускается автоматически через npm-скрипт prepare после npm install.
 //
 // Структура hooks/:
+//   pre-commit          — sh-обёртка (запускает pre-commit.cjs)
 //   pre-commit.cjs      — основной скрипт (Node, CommonJS)
-//   pre-commit.cmd      — Windows-обёртка (вызывает pre-commit.cjs)
+//   commit-msg          — sh-обёртка (запускает commit-msg.cjs)
 //   commit-msg.cjs      — основной скрипт
-//   commit-msg.cmd      — Windows-обёртка
 //
-// Расширение `.cjs` важно: корень проекта — ESM (`"type": "module"`),
+// Файлы `pre-commit` и `commit-msg` (без расширения) — это и есть хуки,
+// которые Git находит по имени события. Они реализованы как sh-скрипты:
+// на Linux/macOS это системный /bin/sh, на Windows — sh.exe из поставки
+// Git for Windows (C:\Program Files\Git\usr\bin\sh.exe). Git находит
+// его автоматически при выполнении хука.
+//
+// Расширение `.cjs` важно: проект объявлен как ESM (`"type": "module"`),
 // и без явного `.cjs` Node пытается интерпретировать скрипт как ESM,
 // где `require` не определён.
-//
-// Без `.cmd` на Windows хук не запускается: shebang `#!/usr/bin/env node`
-// требует `sh` в PATH, а его на типичной инсталляции Git for Windows нет.
 
 import { execSync } from "node:child_process";
 import { existsSync, chmodSync } from "node:fs";
@@ -61,9 +64,9 @@ if (currentPath !== desiredPath) {
 }
 
 // 4. Делаем файлы хуков исполняемыми (Linux/macOS). На Windows
-//    chmod либо не имеет эффекта, либо падает — это не страшно,
-//    Git всё равно найдёт .cmd-обёртку.
-const hooks = ["pre-commit.cjs", "commit-msg.cjs"];
+//    chmod не имеет эффекта, но и не нужен — Git for Windows сам
+//    запустит sh-обёртку через свой sh.exe.
+const hooks = ["pre-commit", "commit-msg", "pre-commit.cjs", "commit-msg.cjs"];
 for (const hook of hooks) {
   const path = join(hooksDir, hook);
   if (!existsSync(path)) {
@@ -75,17 +78,5 @@ for (const hook of hooks) {
     console.log(`✓ install-hooks: chmod +x ${hook}`);
   } catch (err) {
     console.log(`  install-hooks: chmod пропущен для ${hook} (${err.message})`);
-  }
-}
-
-// 5. Напоминание про .cmd-обёртки: без них на Windows хуки не
-// вызываются, потому что Git не находит `sh` для shebang.
-const hookNames = ["pre-commit", "commit-msg"];
-for (const hook of hookNames) {
-  const cmdPath = join(hooksDir, `${hook}.cmd`);
-  if (!existsSync(cmdPath)) {
-    console.warn(
-      `⚠ install-hooks: ${hook}.cmd не найден — на Windows хук не запустится`,
-    );
   }
 }
