@@ -7,10 +7,10 @@
 // обрабатывать данные на уровне JS (JSON-декодирование, форматирование)
 // здесь, в одном месте, а не размазывать по обработчикам.
 
-import type { Db } from "./db.ts";
-import type { Activity, Booking, Schedule } from "./schemas.ts";
-import type { BusySlot } from "./slotEngine.ts";
-import { weekdaysFromJson, weekdaysToJson } from "./slotEngine.ts";
+import type { Db } from "./db.js";
+import type { Activity, Booking, Schedule } from "./schemas.js";
+import type { BusySlot } from "./slotEngine.js";
+import { weekdaysFromJson, weekdaysToJson } from "./slotEngine.js";
 
 // ─── Activities ─────────────────────────────────────────────────────────────
 

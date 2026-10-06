@@ -4,9 +4,9 @@
 
 import type { FastifyPluginAsync } from "fastify";
 import fp from "fastify-plugin";
-import { getActivity, insertActivity, listActivities } from "../repository.ts";
-import { activityCreateSchema, type Activity } from "../schemas.ts";
-import { ApiError, parseOrThrow } from "../errors.ts";
+import { getActivity, insertActivity, listActivities } from "../repository.js";
+import { activityCreateSchema, type Activity } from "../schemas.js";
+import { ApiError, parseOrThrow } from "../errors.js";
 
 // Обёртка `fp` снимает инкапсуляцию плагина: без неё `getActivityOrFail`,
 // зарегистрированный здесь через `fastify.decorate`, виден только

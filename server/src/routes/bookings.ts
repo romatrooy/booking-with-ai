@@ -8,7 +8,7 @@
 
 import type { FastifyPluginAsync } from "fastify";
 import { SqliteError } from "better-sqlite3";
-import type { Db } from "../db.ts";
+import type { Db } from "../db.js";
 import {
   cancelBooking,
   getBooking,
@@ -16,14 +16,14 @@ import {
   listBookings,
   listSchedules,
   listBusySlots,
-} from "../repository.ts";
-import { buildSlots } from "../slotEngine.ts";
+} from "../repository.js";
+import { buildSlots } from "../slotEngine.js";
 import {
   bookingCreateSchema,
   bookingIdParamSchema,
   bookingsQuerySchema,
-} from "../schemas.ts";
-import { ApiError, parseOrThrow } from "../errors.ts";
+} from "../schemas.js";
+import { ApiError, parseOrThrow } from "../errors.js";
 
 // Код нарушения уникальности в `better-sqlite3`. Документация:
 // https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md

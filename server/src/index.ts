@@ -1,9 +1,9 @@
 // Точка входа. AGENTS.md, раздел 5:
 // "server/src/index.ts — точка входа".
 
-import { openDb } from "./db.ts";
-import { buildApp } from "./app.ts";
-import { loadConfig } from "./config.ts";
+import { openDb } from "./db.js";
+import { buildApp } from "./app.js";
+import { loadConfig } from "./config.js";
 
 async function main(): Promise<void> {
   const config = loadConfig();

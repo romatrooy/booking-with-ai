@@ -1,9 +1,9 @@
 // Маршруты для расписаний. См. AGENTS.md, раздел 5.
 
 import type { FastifyPluginAsync } from "fastify";
-import { insertSchedule, listSchedules } from "../repository.ts";
-import { scheduleCreateSchema } from "../schemas.ts";
-import { ApiError, parseOrThrow } from "../errors.ts";
+import { insertSchedule, listSchedules } from "../repository.js";
+import { scheduleCreateSchema } from "../schemas.js";
+import { ApiError, parseOrThrow } from "../errors.js";
 
 export const schedulesRoutes: FastifyPluginAsync = async (fastify) => {
   const { db } = fastify;

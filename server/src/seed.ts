@@ -13,7 +13,7 @@
 // появится `build` шаг с компиляцией через `tsc --build` и `node`
 // будет запускать `.js` напрямую, это ограничение исчезнет.
 
-import { unlinkSync, existsSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
@@ -30,7 +30,17 @@ function seed() {
   const dbFile = resolve(here, "..", "..", "booking.db");
 
   if (existsSync(dbFile)) {
-    unlinkSync(dbFile);
+    // Не удаляем файл целиком (на Windows он может быть залочен
+    // предыдущим процессом, и `unlinkSync` бросит EBUSY). Вместо
+    // этого открываем файл, дропаем все таблицы, чтобы очистить
+    // данные, и закрываем.
+    const cleanup = new Database(dbFile);
+    cleanup.exec(`
+      DROP TABLE IF EXISTS bookings;
+      DROP TABLE IF EXISTS schedules;
+      DROP TABLE IF EXISTS activities;
+    `);
+    cleanup.close();
   }
   const db = new Database(dbFile);
   db.pragma("journal_mode = WAL");

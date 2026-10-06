@@ -8,13 +8,13 @@ import Fastify, {
   type FastifyServerOptions,
 } from "fastify";
 import fastifyCors from "@fastify/cors";
-import { type Db } from "./db.ts";
-import { ApiError, type ErrorResponseBody } from "./errors.ts";
-import { activitiesRoutes } from "./routes/activities.ts";
-import { bookingsRoutes } from "./routes/bookings.ts";
-import { schedulesRoutes } from "./routes/schedules.ts";
-import { slotsRoutes } from "./routes/slots.ts";
-import type { Config } from "./config.ts";
+import { type Db } from "./db.js";
+import { ApiError, type ErrorResponseBody } from "./errors.js";
+import { activitiesRoutes } from "./routes/activities.js";
+import { bookingsRoutes } from "./routes/bookings.js";
+import { schedulesRoutes } from "./routes/schedules.js";
+import { slotsRoutes } from "./routes/slots.js";
+import type { Config } from "./config.js";
 
 // Расширяемый тип Fastify — декоратор `db`, который устанавливается
 // здесь через `app.decorate("db", db)`. Тип `getActivityOrFail` объявлен

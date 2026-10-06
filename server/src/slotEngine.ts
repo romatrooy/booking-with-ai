@@ -9,7 +9,7 @@
 // (`activity_id`+`date`+`start_time`) вернуть массив свободных слотов в
 // диапазоне дат.
 
-import type { Schedule, Slot } from "./schemas.ts";
+import type { Schedule, Slot } from "./schemas.js";
 
 // 1 = понедельник, 7 = воскресенье. Совпадает с `Date.getUTCDay()` за
 // исключением того, что `getUTCDay()` возвращает 0 = воскресенье.

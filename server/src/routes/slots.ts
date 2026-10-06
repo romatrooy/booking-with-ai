@@ -5,10 +5,10 @@
 // функцию `buildSlots`.
 
 import type { FastifyPluginAsync } from "fastify";
-import { listBusySlots, listSchedules } from "../repository.ts";
-import { buildSlots } from "../slotEngine.ts";
-import { slotsQuerySchema } from "../schemas.ts";
-import { parseOrThrow } from "../errors.ts";
+import { listBusySlots, listSchedules } from "../repository.js";
+import { buildSlots } from "../slotEngine.js";
+import { slotsQuerySchema } from "../schemas.js";
+import { parseOrThrow } from "../errors.js";
 
 export const slotsRoutes: FastifyPluginAsync = async (fastify) => {
   const { db } = fastify;
