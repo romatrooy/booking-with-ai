@@ -11,12 +11,16 @@
 // Запускается автоматически через npm-скрипт prepare после npm install.
 //
 // Структура hooks/:
-//   pre-commit          — основной скрипт (Node, без расширения)
-//   pre-commit.cmd      — Windows-обёртка (вызывает pre-commit через node)
-//   commit-msg          — основной скрипт
+//   pre-commit.cjs      — основной скрипт (Node, CommonJS)
+//   pre-commit.cmd      — Windows-обёртка (вызывает pre-commit.cjs)
+//   commit-msg.cjs      — основной скрипт
 //   commit-msg.cmd      — Windows-обёртка
 //
-// Без .cmd на Windows хук не запускается: shebang `#!/usr/bin/env node`
+// Расширение `.cjs` важно: корень проекта — ESM (`"type": "module"`),
+// и без явного `.cjs` Node пытается интерпретировать скрипт как ESM,
+// где `require` не определён.
+//
+// Без `.cmd` на Windows хук не запускается: shebang `#!/usr/bin/env node`
 // требует `sh` в PATH, а его на типичной инсталляции Git for Windows нет.
 
 import { execSync } from "node:child_process";
@@ -59,7 +63,7 @@ if (currentPath !== desiredPath) {
 // 4. Делаем файлы хуков исполняемыми (Linux/macOS). На Windows
 //    chmod либо не имеет эффекта, либо падает — это не страшно,
 //    Git всё равно найдёт .cmd-обёртку.
-const hooks = ["pre-commit", "commit-msg"];
+const hooks = ["pre-commit.cjs", "commit-msg.cjs"];
 for (const hook of hooks) {
   const path = join(hooksDir, hook);
   if (!existsSync(path)) {
@@ -76,7 +80,8 @@ for (const hook of hooks) {
 
 // 5. Напоминание про .cmd-обёртки: без них на Windows хуки не
 // вызываются, потому что Git не находит `sh` для shebang.
-for (const hook of hooks) {
+const hookNames = ["pre-commit", "commit-msg"];
+for (const hook of hookNames) {
   const cmdPath = join(hooksDir, `${hook}.cmd`);
   if (!existsSync(cmdPath)) {
     console.warn(

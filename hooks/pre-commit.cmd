@@ -5,6 +5,8 @@ rem потому что `sh` отсутствует в PATH. Git предпоч�
 rem для хуков и запускает их без посредников.
 rem
 rem Этот файл делает ровно то, что делал бы pre-commit под Linux.
+rem Расширение .cjs важно: корень проекта — ESM (`"type": "module"`),
+rem и без явного .cjs Node пытается интерпретировать скрипт как ESM.
 
-node "%~dp0pre-commit" %*
+node "%~dp0pre-commit.cjs" %*
 exit /b %ERRORLEVEL%
