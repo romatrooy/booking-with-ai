@@ -15,8 +15,10 @@
 //   fix, perf        — Исправления
 //   docs             — Документация
 //   chore, refactor, test, build, ci, style, revert — в CHANGELOG не попадают
+//
+// CommonJS по той же причине, что и hooks/pre-commit.
 
-import { readFileSync } from "node:fs";
+const { readFileSync } = require("node:fs");
 
 const allowedTypes = [
   "feat",

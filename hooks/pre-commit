@@ -16,13 +16,19 @@
 //
 // Любая ошибка прерывает коммит. Чтобы срочно обойти:
 // `git commit --no-verify`. Делать это в обычной работе не нужно.
+//
+// Этот файл — CommonJS. ESM (import/export) не работает, потому что
+// Git выполняет .js-файлы хука как `node ./pre-commit` — и при
+// `import.meta.url` падает с «Cannot use import.meta outside a module».
+// В CommonJS `__dirname` доступен сразу.
 
-import { execFileSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+"use strict";
+const { execFileSync } = require("node:child_process");
+const { resolve } = require("node:path");
 
-const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(here, "..");
+// `__dirname` указывает на каталог, где лежит этот скрипт (hooks/).
+// Поднимаемся на уровень вверх к корню репозитория.
+const repoRoot = resolve(__dirname, "..");
 const scriptsDir = resolve(repoRoot, "scripts");
 
 const checks = [
@@ -43,7 +49,7 @@ for (const name of checks) {
     // Здесь только добавим подсказку, как обойти.
     console.error(`✗ pre-commit: ${name} прервал коммит`);
     console.error("  Чтобы срочно обойти: git commit --no-verify");
-    process.exit(error.status ?? 1);
+    process.exit(error.status || 1);
   }
 }
 
