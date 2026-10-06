@@ -9,10 +9,28 @@
 
 import { expect, test } from "@playwright/test";
 
+// Хелпер для пропуска тестов, если БД пустая. В CI `webServer.command`
+// поднимает `npm start` без `seed`, и при первом запуске в чистой
+// базе нет ни одной активности. Без этого пропуска UI-тесты упадут
+// на шаге выбора активности. `api.spec.ts` использует тот же приём.
+async function skipIfNoActivities(
+  request: import("@playwright/test").APIRequestContext,
+): Promise<boolean> {
+  const res = await request.get("/api/activities");
+  if (res.status() !== 200) return true;
+  const body = (await res.json()) as unknown[];
+  return body.length === 0;
+}
+
 test.describe("e2e: пользовательский сценарий", () => {
   test("главная → выбор слота → запись → «Вы записаны» → политика", async ({
     page,
+    request,
   }) => {
+    if (await skipIfNoActivities(request)) {
+      test.skip(true, "БД пуста: прогон `npm run seed` пропущен");
+      return;
+    }
     // Главная должна загрузиться без ошибок. Сразу заходим на корень:
     // SPA-fallback в `server/src/app.ts` отдаёт `index.html` для
     // произвольных путей, а `App.tsx` читает `window.location.pathname`.
@@ -101,7 +119,11 @@ test.describe("e2e: пользовательский сценарий", () => {
     ).toBeVisible();
   });
 
-  test("ссылка в футере главной открывает политику", async ({ page }) => {
+  test("ссылка в футере главной открывает политику", async ({ page, request }) => {
+    if (await skipIfNoActivities(request)) {
+      test.skip(true, "БД пуста: прогон `npm run seed` пропущен");
+      return;
+    }
     await page.goto("http://127.0.0.1:8000/");
     await page
       .getByRole("button", { name: "Политика конфиденциальности" })
