@@ -41,17 +41,28 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: `npm -C "${repoRoot}" run build && npm -C "${repoRoot}" start`,
-    url: "http://127.0.0.1:8000",
-    reuseExistingServer: !process.env["CI"],
-    timeout: 120_000,
-    stdout: "pipe",
-    stderr: "pipe",
-    env: {
-      // Используем отдельный файл БД, чтобы прогон e2e не
-      // затирал основной `booking.db` в корне.
-      BOOKING_DB_FILE: "booking-e2e.db",
-    },
-  },
+  // Локально webServer не поднимаем: сервис уже должен быть запущен
+  // (например, через `npm start` или `docker compose up`). Это убирает
+  // гонку с портом 8000 и сокращает время прогона. В CI (GitHub
+  // Actions) сервис поднимается отдельным шагом `npm run build && npm
+  // start` в `ci.yml`, поэтому здесь webServer одинаково не нужен.
+  // Чтобы Playwright всё-таки дождался готовности, оставляем
+  // `webServer` только с `reuseExistingServer: true` и командой,
+  // которая мгновенно завершается: Playwright перед запуском тестов
+  // проверит, что URL отвечает, и не будет ничего стартовать.
+  webServer: process.env["CI"]
+    ? {
+        command: `npm -C "${repoRoot}" run build && npm -C "${repoRoot}" start`,
+        url: "http://127.0.0.1:8000",
+        reuseExistingServer: false,
+        timeout: 120_000,
+        stdout: "pipe",
+        stderr: "pipe",
+        env: {
+          // Используем отдельный файл БД, чтобы прогон e2e не
+          // затирал основной `booking.db` в корне.
+          BOOKING_DB_FILE: "booking-e2e.db",
+        },
+      }
+    : undefined,
 });

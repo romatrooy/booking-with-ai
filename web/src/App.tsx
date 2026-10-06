@@ -1,14 +1,20 @@
-// Состояние экрана. Здесь живут три «управляющих» значения:
+// Состояние экрана. Здесь живут четыре «управляющих» значения:
 //  - выбранная активность (id);
 //  - понедельник текущей недели;
-//  - выбранный слот.
+//  - выбранный слот;
+//  - текущий экран (главный или политика конфиденциальности).
 //
 // Все остальные компоненты получают их сверху и не хранят
 // собственную копию. Это упрощает рассуждение о том, что видит
 // пользователь, и устраняет синхронизацию между полями формы и
 // сеткой.
+//
+// Роутинг — простой, без библиотек. URL в адресной строке
+// обновляется через `history.pushState`, чтобы пользователь мог
+// перейти по прямой ссылке и вернуться назад через кнопку браузера.
+// На сервере SPA-fallback уже настроен в `server/src/app.ts`.
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createBooking,
   listActivities,
@@ -21,6 +27,19 @@ import { ActivityPicker } from "./components/ActivityPicker.tsx";
 import { WeekBar } from "./components/WeekBar.tsx";
 import { SlotGrid } from "./components/SlotGrid.tsx";
 import { BookingPanel } from "./components/BookingPanel.tsx";
+import { Privacy } from "./privacy/Privacy.tsx";
+
+// Маршруты приложения. Один экран — один путь. Закрытый союз
+// `Route` страхует от опечаток: при добавлении экрана TypeScript
+// попросит обработать его в `Screen` ниже.
+type Route = "main" | "privacy";
+
+function readRoute(): Route {
+  if (typeof window === "undefined") return "main";
+  const path = window.location.pathname;
+  if (path === "/privacy") return "privacy";
+  return "main";
+}
 
 export function App() {
   // Начальная неделя — текущая (её понедельник).
@@ -28,6 +47,24 @@ export function App() {
   const [activityId, setActivityId] = useState<number | null>(null);
   const [weekStart, setWeekStart] = useState<string>(initialWeek);
   const [selected, setSelected] = useState<Slot | null>(null);
+  const [route, setRoute] = useState<Route>(() => readRoute());
+
+  // Синхронизируем состояние экрана с адресной строкой: клик по
+  // «назад» в браузере должен возвращать на главную. Без
+  // `popstate` пользователь застрял бы на `/privacy`.
+  useEffect(() => {
+    const onPop = () => setRoute(readRoute());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const navigate = useCallback((next: Route) => {
+    const path = next === "privacy" ? "/privacy" : "/";
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, "", path);
+    }
+    setRoute(next);
+  }, []);
 
   const activities = useLoader(
     () => listActivities(),
@@ -63,6 +100,10 @@ export function App() {
   useEffect(() => {
     setSelected(null);
   }, [activityId, weekStart]);
+
+  if (route === "privacy") {
+    return <Privacy onBack={() => navigate("main")} />;
+  }
 
   return (
     <div className="app">
@@ -119,7 +160,18 @@ export function App() {
           return booking;
         }}
         onCancel={() => setSelected(null)}
+        onShowPrivacy={() => navigate("privacy")}
       />
+
+      <footer className="app__footer">
+        <button
+          type="button"
+          className="app__footer-link"
+          onClick={() => navigate("privacy")}
+        >
+          Политика конфиденциальности
+        </button>
+      </footer>
     </div>
   );
 }

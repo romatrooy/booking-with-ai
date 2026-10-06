@@ -9,13 +9,14 @@ interface Props {
     guest_email: string;
   }) => Promise<Booking>;
   onCancel: () => void;
+  onShowPrivacy: () => void;
 }
 
 // Правая колонка: форма записи. Пока слот не выбран — просит
 // выбрать. После создания брони показывает карточку с кнопкой
 // «Отменить». Состояние «бронирование» и ошибка хранятся здесь, чтобы
 // `App` не нужно было управлять промежуточными значениями.
-export function BookingPanel({ slot, onBook, onCancel }: Props) {
+export function BookingPanel({ slot, onBook, onCancel, onShowPrivacy }: Props) {
   if (slot === null) {
     return (
       <aside className="booking-panel">
@@ -26,16 +27,24 @@ export function BookingPanel({ slot, onBook, onCancel }: Props) {
       </aside>
     );
   }
-  return <BookForm slot={slot} onBook={onBook} onCancel={onCancel} />;
+  return (
+    <BookForm
+      slot={slot}
+      onBook={onBook}
+      onCancel={onCancel}
+      onShowPrivacy={onShowPrivacy}
+    />
+  );
 }
 
 interface FormProps {
   slot: Slot;
   onBook: (input: { guest_name: string; guest_email: string }) => Promise<Booking>;
   onCancel: () => void;
+  onShowPrivacy: () => void;
 }
 
-function BookForm({ slot, onBook, onCancel }: FormProps) {
+function BookForm({ slot, onBook, onCancel, onShowPrivacy }: FormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -68,8 +77,15 @@ function BookForm({ slot, onBook, onCancel }: FormProps) {
           </span>
         </p>
         <p className="booking-panel__hint">
-          Бронь #{booking.id}. Сохраните письмо с подтверждением, когда
-          оно появится.
+          Бронь #{booking.id}. Отправляя форму, вы согласились с{" "}
+          <button
+            type="button"
+            className="booking-panel__inline-link"
+            onClick={onShowPrivacy}
+          >
+            политикой конфиденциальности
+          </button>
+          .
         </p>
         <button
           type="button"
@@ -126,6 +142,17 @@ function BookForm({ slot, onBook, onCancel }: FormProps) {
         >
           {submitting ? "Отправляем…" : "Записаться"}
         </button>
+        <p className="booking-panel__consent">
+          Отправляя форму, вы соглашаетесь с{" "}
+          <button
+            type="button"
+            className="booking-panel__inline-link"
+            onClick={onShowPrivacy}
+          >
+            политикой конфиденциальности
+          </button>
+          .
+        </p>
       </form>
     </aside>
   );

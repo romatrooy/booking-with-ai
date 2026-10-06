@@ -333,6 +333,97 @@ body {
   margin: 0;
 }
 
+/* Краткий дисклеймер под формой. Тонкая рамка сверху и приглушённый
+   цвет отделяют правовую фразу от полей ввода, но не утяжеляют форму. */
+.booking-panel__consent {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 4px 0 0;
+}
+
+/* Кнопка-ссылка внутри текста. Сбрасываем браузерные стили
+   `<button>`, оставляем только цвет и подчёркивание. `cursor: pointer`
+   уже есть у `<button>` по умолчанию, не дублируем. */
+.booking-panel__inline-link,
+.app__footer-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.booking-panel__inline-link:hover,
+.app__footer-link:hover {
+  color: #1d4ed8;
+}
+
+.app__footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+/* ─── Privacy ────────────────────────────────────────────────────── */
+
+.privacy {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.privacy__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.privacy__header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.privacy__back {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.privacy__back:hover {
+  border-color: #3b82f6;
+}
+
+.privacy__section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.privacy__section h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #4b5563;
+}
+
+.privacy__section p,
+.privacy__section ul {
+  margin: 0 0 8px;
+}
+
+.privacy__section ul {
+  padding-left: 20px;
+}
+
 /* Узкие экраны: сетка слотов превращается в вертикальный список. */
 @media (max-width: 720px) {
   .slot-grid {
