@@ -23,11 +23,15 @@ const Database = require("better-sqlite3");
 
 function seed() {
   // БД лежит в корне проекта, рядом с `server/`. Это удобно для
-  // `docker compose up -v` — том для данных. Строим путь через
-  // `fileURLToPath`, чтобы на Windows не получить URL-encoded
-  // обратный слэш.
+  // `docker compose up -v` — том для данных. Путь берётся из
+  // переменной `BOOKING_DB_FILE` (относительно корня проекта) либо
+  // по умолчанию `booking.db` в корне. Так seed и сервер ходят в один
+  // и тот же файл, что важно в Docker: том монтируется в `/data`, и
+  // оба процесса должны видеть базу по одному пути.
   const here = dirname(fileURLToPath(import.meta.url));
-  const dbFile = resolve(here, "..", "..", "booking.db");
+  const projectRoot = resolve(here, "..", "..");
+  const raw = process.env["BOOKING_DB_FILE"];
+  const dbFile = raw ? resolve(projectRoot, raw) : resolve(projectRoot, "booking.db");
 
   if (existsSync(dbFile)) {
     // Не удаляем файл целиком (на Windows он может быть залочен

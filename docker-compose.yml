@@ -1,0 +1,49 @@
+# Сервис бронирования тайм-слотов. Одна команда для запуска:
+#
+#   docker compose up -d --build
+#
+# Поднимется на http://localhost:8000, база наполнится демонстрационными
+# данными автоматически. Именованный том `booking-data` хранит файл
+# базы между перезапусками контейнера. Удалить вместе с данными:
+#
+#   docker compose down -v
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: booking-service:local
+    container_name: booking-service
+    # Контейнер сам раздаёт и API, и собранный фронт, поэтому одного
+    # порта 8000 достаточно — это совпадает с README, раздел
+    # «Запуск в собранном виде, один порт».
+    ports:
+      - "8000:8000"
+    environment:
+      # Внутри контейнера приложение слушает на всех интерфейсах,
+      # чтобы порт был доступен через проброс.
+      BOOKING_HOST: 0.0.0.0
+      BOOKING_PORT: "8000"
+      # Файл базы лежит на томе, см. `volumes` ниже. Сервер и seed
+      # читают одну и ту же переменную — это изменение, добавленное
+      # вместе с этим compose-файлом (см. `server/src/seed.ts`).
+      BOOKING_DB_FILE: /data/booking.db
+      # Собранный фронт лежит в /app/web/dist — этот путь прописан
+      # в Dockerfile. Явно передаём BOOKING_WEB_DIR на случай,
+      # если в будущем фронт будет собираться отдельно.
+      BOOKING_WEB_DIR: /app/web/dist
+      NODE_ENV: production
+    volumes:
+      # Именованный том: файл базы переживает рестарт и пересоздание
+      # контейнера. Удалить данные: `docker compose down -v`.
+      - booking-data:/data
+    # Команда в Dockerfile сначала вызывает seed, потом сервис. Так
+    # при первом старте (том пустой) база наполнится демо-данными.
+    # Если важно сохранять пользовательские брони между рестартами,
+    # замените `command` на запуск без seed или сделайте seed условным.
+    restart: unless-stopped
+
+volumes:
+  booking-data:
+    name: booking-data

@@ -1,0 +1,48 @@
+# Следом логики из .gitignore: в образ не должны попадать ни исходники
+# тестов, ни локальные базы, ни артефакты прошлых сборок.
+
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+booking.db
+booking.db-journal
+booking.db-wal
+booking.db-shm
+booking-e2e.db
+booking-e2e.db-journal
+booking-e2e.db-wal
+booking-e2e.db-shm
+test-direct.db
+test-direct.db-journal
+test-direct.db-wal
+test-direct.db-shm
+
+test-results/
+playwright-report/
+playwright/.cache/
+
+.git/
+.github/
+docs/
+hooks/
+
+# Контракт собирается внутри образа из contract/main.tsp, эмиттер
+# OpenAPI у нас всё равно пишет в contract/, но в финальный образ
+# попадает только содержимое, перечисленное ниже в Dockerfile.
+contract/openapi.yaml
+contract/tsp-output/
+
+# `scripts/` нужна только во время сборки (для `prepare`-хука
+# `node scripts/install-hooks.mjs`). Чтобы не затаскивать её в финальный
+# образ, здесь её не игнорируем, а в Dockerfile копируем только
+# конкретный файл.
+
+.env
+.env.local
+.env.*.local
+*.log
+dev*.log
+runner-direct.log

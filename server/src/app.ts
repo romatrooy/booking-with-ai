@@ -3,11 +3,14 @@
 // AGENTS.md, раздел 9: "Ошибку `ZodError` превращает в ответ 422 общий
 // обработчик в `app.ts`."
 
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import Fastify, {
   type FastifyInstance,
   type FastifyServerOptions,
 } from "fastify";
 import fastifyCors from "@fastify/cors";
+import fastifyStatic from "@fastify/static";
 import { type Db } from "./db.js";
 import { ApiError, type ErrorResponseBody } from "./errors.js";
 import { activitiesRoutes } from "./routes/activities.js";
@@ -58,6 +61,39 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   await app.register(schedulesRoutes);
   await app.register(slotsRoutes);
   await app.register(bookingsRoutes);
+
+  // Собранный интерфейс отдаётся тем же сервисом, поэтому в промышленном
+  // запуске нет ни второго порта, ни настроек междоменных запросов.
+  // Проверяем, что папка существует: в тестах `BOOKING_WEB_DIR` может
+  // указывать на пустую директорию, и регистрировать плагин тогда
+  // не нужно — иначе `@fastify/static` упадёт на старте. Путь
+  // приводим к абсолютному: `@fastify/static` отказывается работать
+  // с относительными путями, а в тестах `webDir` иногда приходит как ".".
+  const webRoot = resolve(config.webDir);
+  const hasWeb = existsSync(webRoot);
+  if (hasWeb) {
+    await app.register(fastifyStatic, { root: webRoot, prefix: "/" });
+  }
+
+  // Не найденный путь — либо запрос к API (тогда 404 c `route_not_found`),
+  // либо адрес интерфейса (тогда отдаём `index.html` для SPA-роутинга).
+  // Без этой развилки любой `GET /foo` упирался бы в 404 и SPA не
+  // открывалась бы по произвольному пути.
+  app.setNotFoundHandler((request, reply) => {
+    if (request.url.startsWith("/api/")) {
+      const body: ErrorResponseBody = {
+        code: "route_not_found",
+        message: "Такого эндпоинта нет",
+      };
+      return reply.code(404).send(body);
+    }
+    if (hasWeb) {
+      return reply.sendFile("index.html");
+    }
+    return reply
+      .code(404)
+      .send({ code: "route_not_found", message: "Страница не найдена" });
+  });
 
   // Общий обработчик ошибок. AGENTS.md §9: ошибки превращаются в
   // ответ `{ code, message }` на русском. ZodError отдельно не ловим:

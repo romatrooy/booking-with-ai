@@ -76,6 +76,7 @@ describe("contract: соответствие API contract/openapi.yaml", () => {
     const expectedCodes = [
       "activity_not_found",
       "booking_not_found",
+      "route_not_found",
       "slot_taken",
       "booking_already_cancelled",
       "validation_failed",

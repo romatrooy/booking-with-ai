@@ -10,6 +10,7 @@
 export type ErrorCode =
   | "activity_not_found"
   | "booking_not_found"
+  | "route_not_found"
   | "slot_taken"
   | "booking_already_cancelled"
   | "validation_failed"
@@ -30,6 +31,10 @@ export const errors: Record<ErrorCode, ErrorEntry> = {
   booking_not_found: {
     statusCode: 404,
     message: "Бронь не найдена",
+  },
+  route_not_found: {
+    statusCode: 404,
+    message: "Такого эндпоинта нет",
   },
   slot_taken: {
     statusCode: 409,

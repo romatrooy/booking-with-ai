@@ -26,8 +26,8 @@
     "prepare": "node scripts/install-hooks.mjs"
   },
   "devDependencies": {
-    "conventional-changelog": "5.1.0",
-    "conventional-changelog-angular": "7.0.0",
-    "prettier": "3.9.9"
+    "conventional-changelog": "5.0.0",
+    "conventional-changelog-angular": "8.0.0",
+    "prettier": "3.3.3"
   }
 }

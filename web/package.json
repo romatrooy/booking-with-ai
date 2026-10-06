@@ -6,19 +6,19 @@
   "description": "Гостевой интерфейс на Vite + React, без библиотек компонентов.",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@types/react": "19.1.10",
-    "@types/react-dom": "19.1.7",
-    "@vitejs/plugin-react": "5.0.0",
-    "typescript": "7.0.2",
-    "vite": "7.1.4"
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "5.9.3",
+    "vite": "8.2.2"
   }
 }

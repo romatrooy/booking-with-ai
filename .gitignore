@@ -19,6 +19,16 @@ booking.db-journal
 booking.db-wal
 booking.db-shm
 
+# Временные базы прямых прогонов тестов и e2e — те же причины.
+booking-e2e.db
+booking-e2e.db-journal
+booking-e2e.db-wal
+booking-e2e.db-shm
+test-direct.db
+test-direct.db-journal
+test-direct.db-wal
+test-direct.db-shm
+
 # Временные файлы тестов
 test-results/
 playwright-report/

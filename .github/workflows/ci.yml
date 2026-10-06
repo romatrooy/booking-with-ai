@@ -1,0 +1,100 @@
+# Проверка проекта при каждом изменении.
+#
+# Три задачи. Первая собирает контракт и проверяет, что закоммиченный
+# openapi.yaml совпадает с тем, что выдаёт компилятор, потом проверяет типы
+# и гоняет модульные и интеграционные тесты. Вторая гоняет сквозные тесты
+# в настоящем браузере. Третья собирает образ Docker.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  check:
+    name: Контракт, типы и тесты
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Забрать код
+        uses: actions/checkout@v4
+
+      - name: Поставить Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+      - name: Пересобрать контракт из TypeSpec
+        run: npm run contract:build
+
+      - name: Проверить, что openapi.yaml в репозитории совпадает со сборкой
+        run: git diff --exit-code -- contract/openapi.yaml
+
+      - name: Проверить типы
+        run: npm run typecheck
+
+      - name: Модульные и интеграционные тесты
+        run: npm test
+
+      - name: Собрать интерфейс
+        run: npm run build --workspace web
+
+  e2e:
+    name: Сквозные тесты
+    runs-on: ubuntu-latest
+    needs: check
+
+    steps:
+      - name: Забрать код
+        uses: actions/checkout@v4
+
+      - name: Поставить Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+      - name: Поставить браузер для Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: e2e
+
+      - name: Собрать сервис и интерфейс
+        run: npm run build
+
+      - name: Запустить сквозные тесты
+        run: npm run e2e
+
+      - name: Сохранить отчёт, если тесты упали
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/test-results
+          retention-days: 7
+
+  docker:
+    name: Сборка образа
+    runs-on: ubuntu-latest
+    needs: check
+
+    steps:
+      - name: Забрать код
+        uses: actions/checkout@v4
+
+      - name: Собрать образ
+        run: docker build --tag booking-with-ai:ci .
