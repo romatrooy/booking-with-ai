@@ -205,6 +205,76 @@ describe("slots", () => {
     expect(res.statusCode).toBe(404);
     expect(res.json().code).toBe("activity_not_found");
   });
+
+  it("после брони слот приходит с is_free=false; после отмены снова true", async () => {
+    const a = insertActivity(db, {
+      name: "A",
+      description: null,
+      default_duration_minutes: 60,
+    });
+    await seed(a.id);
+
+    // До брони: оба слота среды свободны.
+    const before = await app.inject({
+      method: "GET",
+      url: `/api/slots?activity_id=${a.id}&date_from=2026-10-07&date_to=2026-10-07`,
+    });
+    expect(before.statusCode).toBe(200);
+    const beforeSlots = before.json() as Array<{
+      start_time: string;
+      is_free: boolean;
+    }>;
+    expect(beforeSlots).toHaveLength(2);
+    expect(beforeSlots.every((s) => s.is_free)).toBe(true);
+
+    // Бронируем 10:00.
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/bookings",
+      payload: {
+        activity_id: a.id,
+        date: "2026-10-07",
+        start_time: "10:00:00",
+        guest_name: "Иван",
+        guest_email: "ivan@example.com",
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    const bookingId = created.json().id as number;
+
+    // После брони: 10:00 занят, 11:00 свободен.
+    const afterBook = await app.inject({
+      method: "GET",
+      url: `/api/slots?activity_id=${a.id}&date_from=2026-10-07&date_to=2026-10-07`,
+    });
+    const afterBookSlots = afterBook.json() as Array<{
+      start_time: string;
+      is_free: boolean;
+    }>;
+    expect(afterBookSlots).toHaveLength(2);
+    const ten = afterBookSlots.find((s) => s.start_time === "10:00:00");
+    const eleven = afterBookSlots.find((s) => s.start_time === "11:00:00");
+    expect(ten?.is_free).toBe(false);
+    expect(eleven?.is_free).toBe(true);
+
+    // Отменяем бронь.
+    const cancelled = await app.inject({
+      method: "POST",
+      url: `/api/bookings/${bookingId}/cancel`,
+    });
+    expect(cancelled.statusCode).toBe(200);
+
+    // После отмены слот снова свободен.
+    const afterCancel = await app.inject({
+      method: "GET",
+      url: `/api/slots?activity_id=${a.id}&date_from=2026-10-07&date_to=2026-10-07`,
+    });
+    const afterCancelSlots = afterCancel.json() as Array<{
+      start_time: string;
+      is_free: boolean;
+    }>;
+    expect(afterCancelSlots.every((s) => s.is_free)).toBe(true);
+  });
 });
 
 describe("bookings — полный сценарий", () => {

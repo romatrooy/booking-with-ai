@@ -72,7 +72,10 @@ describe("buildSlots", () => {
       date: "2026-10-05",
       start_time: "10:00:00",
       duration_minutes: 60,
+      is_free: true,
     });
+    // Все слоты свободны — busy не передан.
+    expect(slots.every((s) => s.is_free)).toBe(true);
   });
 
   it("учитывает длительность слота", () => {
@@ -96,6 +99,24 @@ describe("buildSlots", () => {
     ]);
   });
 
+  it("слот не вылезает за рабочее окно: 45 мин при окне до 12:00 не даёт 11:30", () => {
+    // Окно 10:00–12:00, шаг 45 мин. Слот может начаться не позже 11:15,
+    // потому что 11:15 + 45 = 12:00. Слот в 11:30 не помещается и не
+    // должен генерироваться. Это требование задания.
+    const slots = buildSlots(
+      makeSchedule({
+        weekdays: ["wed"],
+        start_time: "10:00:00",
+        end_time: "12:00:00",
+        duration_minutes: 45,
+      }),
+      [],
+      "2026-10-07",
+      "2026-10-07",
+    );
+    expect(slots.map((s) => s.start_time)).toEqual(["10:00:00", "10:45:00"]);
+  });
+
   it("не генерирует слот, если день недели не входит в расписание", () => {
     // Только среда — воскресенье пропускаем.
     const slots = buildSlots(
@@ -107,14 +128,21 @@ describe("buildSlots", () => {
     expect(slots).toEqual([]);
   });
 
-  it("исключает занятые слоты", () => {
+  it("оставляет занятый слот в выдаче с is_free=false", () => {
     const busy: BusySlot[] = [
       { activity_id: 1, date: "2026-10-07", start_time: "10:00:00" },
     ];
     const slots = buildSlots(makeSchedule(), busy, "2026-10-07", "2026-10-07");
-    // В среду должно было быть 2 слота, один занят — остаётся 1.
-    expect(slots).toHaveLength(1);
-    expect(slots[0]?.start_time).toBe("11:00:00");
+    // В среду 2 слота; занятый остаётся в выдаче, но помечается занятым.
+    expect(slots).toHaveLength(2);
+    expect(slots[0]).toMatchObject({
+      start_time: "10:00:00",
+      is_free: false,
+    });
+    expect(slots[1]).toMatchObject({
+      start_time: "11:00:00",
+      is_free: true,
+    });
   });
 
   it("не учитывает busy из другой активности", () => {
@@ -123,6 +151,7 @@ describe("buildSlots", () => {
     ];
     const slots = buildSlots(makeSchedule(), busy, "2026-10-07", "2026-10-07");
     expect(slots).toHaveLength(2);
+    expect(slots.every((s) => s.is_free)).toBe(true);
   });
 
   it("возвращает пустой массив, если окно меньше длительности", () => {

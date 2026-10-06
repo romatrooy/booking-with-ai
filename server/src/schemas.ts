@@ -84,6 +84,7 @@ export const slotSchema = z.object({
   date: dateString,
   start_time: timeString,
   duration_minutes: z.number().int().min(5).max(480),
+  is_free: z.boolean(),
 });
 
 export type Slot = z.infer<typeof slotSchema>;

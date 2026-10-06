@@ -350,6 +350,7 @@ components:
         - date
         - start_time
         - duration_minutes
+        - is_free
       properties:
         activity_id:
           type: integer
@@ -363,6 +364,8 @@ components:
           format: int32
           minimum: 5
           maximum: 480
+        is_free:
+          type: boolean
     ValidationError:
       type: object
       required:

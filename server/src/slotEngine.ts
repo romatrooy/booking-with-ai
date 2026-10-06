@@ -105,9 +105,14 @@ function slotsForDate(schedule: Schedule, date: string): string[] {
   return result;
 }
 
-// Главная функция: собрать свободные слоты на диапазон дат. Принимает
-// расписание, диапазон и список занятых слотов — всё это «факты», а не
-// «запросы к базе». Поэтому тесты могут подсунуть свои.
+// Главная функция: собрать слоты на диапазон дат. Принимает расписание,
+// диапазон и список занятых слотов — всё это «факты», а не «запросы к
+// базе». Поэтому тесты могут подсунуть свои.
+//
+// Возвращаются все слоты окна: и свободные (`is_free=true`), и занятые
+// (`is_free=false`). Занятые нужны интерфейсу, чтобы показать их как
+// «серый, нельзя кликнуть», а не «прятать». Это согласовано с моделью
+// `Slot` в `contract/main.tsp`.
 export function buildSlots(
   schedule: Schedule,
   busySlots: readonly BusySlot[],
@@ -132,12 +137,13 @@ export function buildSlots(
     const date = formatUtcMidnight(d);
     const startTimes = slotsForDate(schedule, date);
     for (const startTime of startTimes) {
-      if (busy.has(`${date} ${startTime}`)) continue;
+      const key = `${date} ${startTime}`;
       result.push({
         activity_id: schedule.activity_id,
         date,
         start_time: startTime,
         duration_minutes: schedule.duration_minutes,
+        is_free: !busy.has(key),
       });
     }
   }

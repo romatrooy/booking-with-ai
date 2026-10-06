@@ -1,0 +1,341 @@
+/* Оформление собственное, без библиотек. Свободный слот — синий,
+   занятый — серый. Всё в одном файле, как требует задание. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, sans-serif;
+  color: #1f2937;
+  background: #f8fafc;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.app__header h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.app__section {
+  margin-top: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.app__section h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.app__hint,
+.empty {
+  color: #6b7280;
+  margin: 0;
+}
+
+.app__error {
+  color: #b91c1c;
+  margin: 0;
+}
+
+/* ─── ActivityPicker ─────────────────────────────────────────────── */
+
+.activity-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.activity-picker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+.activity-picker__item:hover {
+  border-color: #3b82f6;
+}
+
+.activity-picker__item--checked {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.activity-picker__name {
+  font-weight: 500;
+}
+
+.activity-picker__duration {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.activity-picker input[type="radio"] {
+  accent-color: #3b82f6;
+}
+
+/* ─── WeekBar ─────────────────────────────────────────────────────── */
+
+.week-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.week-bar__label {
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.week-bar__nav {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.week-bar__nav:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+.week-bar__nav:not(:disabled):hover {
+  border-color: #3b82f6;
+}
+
+/* ─── SlotGrid ────────────────────────────────────────────────────── */
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.slot-grid__day {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fafafa;
+  padding: 8px;
+  min-height: 120px;
+}
+
+.slot-grid__day-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.slot-grid__weekday {
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.slot-grid__day-number {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.slot-grid__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slot-grid__empty {
+  color: #9ca3af;
+  text-align: center;
+  font-size: 14px;
+}
+
+.slot-grid__button {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.slot-grid__button--free {
+  background: #dbeafe; /* голубой по требованию задания */
+  color: #1e3a8a;
+  border-color: #93c5fd;
+}
+
+.slot-grid__button--free:hover {
+  background: #bfdbfe;
+}
+
+.slot-grid__button--busy {
+  background: #e5e7eb; /* серый по требованию задания */
+  color: #9ca3af;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.slot-grid__button--selected {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+.slot-grid__button--selected:hover {
+  background: #1d4ed8;
+}
+
+/* ─── BookingPanel ────────────────────────────────────────────────── */
+
+.booking-panel {
+  margin-top: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.booking-panel h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.booking-panel__line {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.booking-panel__date {
+  font-weight: 600;
+}
+
+.booking-panel__time {
+  font-weight: 600;
+}
+
+.booking-panel__duration {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.booking-panel__hint {
+  color: #6b7280;
+  margin: 0 0 12px;
+}
+
+.booking-panel__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.booking-panel__field span {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.booking-panel__field input {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.booking-panel__field input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.booking-panel__submit {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.booking-panel__submit:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.booking-panel__submit:not(:disabled):hover {
+  background: #1d4ed8;
+}
+
+.booking-panel__cancel {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.booking-panel__cancel:hover {
+  border-color: #3b82f6;
+}
+
+.booking-panel__error {
+  color: #b91c1c;
+  margin: 0;
+}
+
+/* Узкие экраны: сетка слотов превращается в вертикальный список. */
+@media (max-width: 720px) {
+  .slot-grid {
+    grid-template-columns: 1fr;
+  }
+}
