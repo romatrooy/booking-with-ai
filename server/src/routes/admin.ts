@@ -19,6 +19,7 @@ import {
 } from "../adminAuth.js";
 import {
   cancelBooking,
+  getActivity,
   getBooking,
   listActivities,
   listBookingsForAdmin,
@@ -197,6 +198,13 @@ export const adminRoutes: FastifyPluginAsync = async (fastify) => {
         throw new ApiError("booking_not_found");
       }
       throw new ApiError("booking_already_cancelled");
+    }
+    // Письмо гостю об отмене — то же поведение, что и в
+    // `routes/bookings.ts`. Активность может быть удалена, тогда
+    // письмо не отправим (без названия активности оно бесполезно).
+    const activity = getActivity(fastify.db, cancelled.activity_id);
+    if (activity !== null) {
+      void fastify.mailer.sendBookingCancelled(cancelled, activity);
     }
     return cancelled;
   });

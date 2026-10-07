@@ -21,6 +21,17 @@ export interface Config {
   // В проде `BOOKING_SESSION_SECRET` обязателен — иначе куки
   // инвалидируются при каждом перезапуске.
   readonly sessionSecret: string;
+  // SMTP для отправки писем гостю. Если конфиг пуст (ни одна
+  // переменная не задана), `mailer` это no-op. Решение в ADR 0005.
+  readonly smtp: SmtpConfig | null;
+}
+
+export interface SmtpConfig {
+  readonly host: string;
+  readonly port: number;
+  readonly user: string;
+  readonly password: string;
+  readonly from: string;
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -73,6 +84,51 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const sessionSecret =
     env["BOOKING_SESSION_SECRET"] ?? randomBytes(32).toString("hex");
 
+  // SMTP. Если ни одна из переменных не задана — null, и `mailer`
+  // становится no-op. Если задана хотя бы одна — требуем все
+  // остальные, иначе сервер стартует с явной ошибкой: половина
+  // конфига хуже, чем ничего, и приводит к непонятным таймаутам.
+  const smtpHost = env["SMTP_HOST"];
+  const smtpPortRaw = env["SMTP_PORT"];
+  const smtpUser = env["SMTP_USER"];
+  const smtpPassword = env["SMTP_PASSWORD"];
+  const smtpFromRaw = env["SMTP_FROM"];
+
+  const anySmtp = [
+    smtpHost,
+    smtpPortRaw,
+    smtpUser,
+    smtpPassword,
+    smtpFromRaw,
+  ].some((v) => v !== undefined);
+  if (anySmtp) {
+    const missing: string[] = [];
+    if (smtpHost === undefined) missing.push("SMTP_HOST");
+    if (smtpPortRaw === undefined) missing.push("SMTP_PORT");
+    if (smtpUser === undefined) missing.push("SMTP_USER");
+    if (smtpPassword === undefined) missing.push("SMTP_PASSWORD");
+    if (smtpFromRaw === undefined) missing.push("SMTP_FROM");
+    if (missing.length > 0) {
+      throw new Error(
+        `SMTP: заданы не все переменные. Не хватает: ${missing.join(", ")}.`,
+      );
+    }
+  }
+  const smtp: SmtpConfig | null =
+    smtpHost !== undefined &&
+    smtpPortRaw !== undefined &&
+    smtpUser !== undefined &&
+    smtpPassword !== undefined &&
+    smtpFromRaw !== undefined
+      ? {
+          host: smtpHost,
+          port: parsePort(smtpPortRaw, 587),
+          user: smtpUser,
+          password: smtpPassword,
+          from: smtpFromRaw,
+        }
+      : null;
+
   return {
     port,
     host,
@@ -82,5 +138,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     adminLogin,
     adminPassword,
     sessionSecret,
+    smtp,
   };
 }

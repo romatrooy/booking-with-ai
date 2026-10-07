@@ -58,6 +58,7 @@ beforeEach(async () => {
       adminLogin: "admin",
       adminPassword: "Pas!_123",
       sessionSecret: "test-secret-32-bytes-long-1234",
+      smtp: null,
     },
     db,
   });

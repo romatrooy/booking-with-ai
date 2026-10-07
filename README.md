@@ -344,12 +344,36 @@ curl -X POST http://127.0.0.1:8000/api/bookings -H "Content-Type: application/js
 | `BOOKING_ADMIN_LOGIN`    | `admin`                 | логин администратора (для входа в `/api/admin/login`)         |
 | `BOOKING_ADMIN_PASSWORD` | `Pas!_123`              | пароль администратора (хешируется при старте через bcryptjs)  |
 | `BOOKING_SESSION_SECRET` | случайная строка        | секрет для подписи cookie `admin_session`. В проде обязателен |
+| `SMTP_HOST`              | —                       | хост SMTP-сервера (например, `smtp.gmail.com`)                |
+| `SMTP_PORT`              | —                       | порт SMTP (587 для STARTTLS, 465 для SSL)                     |
+| `SMTP_USER`              | —                       | логин SMTP-аккаунта                                           |
+| `SMTP_PASSWORD`          | —                       | пароль приложения (для Gmail — App Password)                  |
+| `SMTP_FROM`              | —                       | адрес отправителя (часто = `SMTP_USER`)                       |
 
 Логин и пароль администратора по умолчанию подходят только для
 локальной разработки: при старте сервис печатает в лог
 предупреждение «используется dev-логин». Для прода задайте обе
 переменные через `docker-compose.yml` или переменные окружения
 процесса.
+
+Если ни одна из `SMTP_*` не задана, сервис работает без писем —
+бронь и отмена выполняются, но гостю ничего не приходит. Это удобно
+для разработки и CI. Шаблон для Gmail (создание App Password)
+приведён в `.env.example`.
+
+### Письма гостю
+
+После `POST /api/bookings` гостю уходит письмо «Запись подтверждена»,
+после отмены — «Бронь отменена». Администратору письма не
+отправляются. Решение в `docs/adr/0005-smtp.md`. Шаблоны —
+plain-text + HTML на русском.
+
+Пример для Gmail (создание пароля приложения):
+
+1. Включите 2FA: <https://myaccount.google.com/security>.
+2. Создайте App Password: <https://myaccount.google.com/apppasswords>.
+3. Запишите `SMTP_USER=<ваш-gmail>` и `SMTP_PASSWORD=<16-символьный-токен>`.
+4. `SMTP_PORT=587`, `SMTP_HOST=smtp.gmail.com`.
 
 ## Документация
 
@@ -362,6 +386,9 @@ curl -X POST http://127.0.0.1:8000/api/bookings -H "Content-Type: application/js
   а не хранятся.
 - `docs/adr/0003-zashchita-ot-dvoynogo-bronirovaniya.md` — как защищаемся
   от двойного бронирования.
+- `docs/adr/0004-admin-auth.md` — аутентификация администратора
+  (логин/пароль в env, cookie `admin_session`).
+- `docs/adr/0005-smtp.md` — письма гостю через SMTP (`nodemailer`).
 - `docs/ontology.md` — сущности предметной области и инварианты.
 
 Файл `AGENTS.md` в корне — памятка для ИИ-агента, работающего с репозиторием.

@@ -11,6 +11,7 @@ import { SqliteError } from "better-sqlite3";
 import type { Db } from "../db.js";
 import {
   cancelBooking,
+  getActivity,
   getBooking,
   insertBooking,
   listBookings,
@@ -42,8 +43,9 @@ export const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
 
   fastify.post("/api/bookings", async (request, reply) => {
     const body = parseOrThrow(request.body, bookingCreateSchema);
-    // Проверяем активность. 404, если её нет.
-    fastify.getActivityOrFail(body.activity_id);
+    // Проверяем активность. 404, если её нет. Сохраняем — нужно для
+    // письма гостю (см. ниже).
+    const activity = fastify.getActivityOrFail(body.activity_id);
     // Проверяем, что слот в принципе есть в расписании (без учёта
     // занятости). Это защита от подделанного запроса "гость прислал
     // произвольное время". (Инвариант И1 в онтологии, пункт 9.)
@@ -65,6 +67,9 @@ export const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
         guest_name: body.guest_name,
         guest_email: body.guest_email,
       });
+      // Письмо гостю — побочный эффект, см. ADR 0005. Ошибка
+      // отправки логируется внутри `mailer` и не ломает 201.
+      void fastify.mailer.sendBookingCreated(created, activity);
       reply.code(201);
       return created;
     } catch (error) {
@@ -93,6 +98,16 @@ export const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
         throw new ApiError("booking_not_found");
       }
       throw new ApiError("booking_already_cancelled");
+    }
+    // Письмо гостю об отмене — побочный эффект. Если активность
+    // удалена (`ON DELETE CASCADE` уже стёр строку), `getActivity`
+    // вернёт `null`, и письмо уйдёт без названия. Это редкий
+    // случай: после каскадного удаления `status` брони в БД уже
+    // не действующий, отмена не имеет смысла, и гость не должен
+    // был получить бронь от удалённой активности.
+    const activity = getActivity(db, cancelled.activity_id);
+    if (activity !== null) {
+      void fastify.mailer.sendBookingCancelled(cancelled, activity);
     }
     return cancelled;
   });

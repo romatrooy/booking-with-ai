@@ -18,6 +18,7 @@ import { adminRoutes, setupAdmin } from "./routes/admin.js";
 import { bookingsRoutes } from "./routes/bookings.js";
 import { schedulesRoutes } from "./routes/schedules.js";
 import { slotsRoutes } from "./routes/slots.js";
+import { buildMailer, type Mailer } from "./mailer.js";
 import type { Config } from "./config.js";
 
 // Расширяемый тип Fastify — декоратор `db`, который устанавливается
@@ -26,6 +27,7 @@ import type { Config } from "./config.js";
 declare module "fastify" {
   interface FastifyInstance {
     readonly db: Db;
+    readonly mailer: Mailer;
   }
 }
 
@@ -52,6 +54,16 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   // Учётные данные администратора и секрет сессии — в замыкании
   // фабрики `setupAdmin` (см. `routes/admin.ts`).
   setupAdmin(app, config, db);
+
+  // Mailer. Если SMTP_* в env не заданы — no-op (см. ADR 0005).
+  // Ничего не ломается, бронь и отмена работают без писем.
+  app.decorate("mailer", buildMailer(config.smtp));
+  if (!app.mailer.isEnabled()) {
+    app.log.warn(
+      "SMTP не сконфигурирован: письма гостям отправляться не будут. " +
+        "Задайте SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM.",
+    );
+  }
 
   // Предупреждения в лог. Решение в ADR 0004: в проде логин/пароль
   // и секрет сессии должны быть заданы явно. Если используются

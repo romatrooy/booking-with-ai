@@ -32,6 +32,7 @@ function makeConfig(): Config {
     adminLogin: "test-admin",
     adminPassword: "test-pass-123",
     sessionSecret: "test-secret-32-bytes-long-1234",
+    smtp: null,
   };
 }
 
