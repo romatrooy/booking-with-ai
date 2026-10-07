@@ -5,6 +5,7 @@
 
 ## 1.0.0 (2026-10-07)
 
+* build(compose): подхватывать .env для SMTP_* и BOOKING_ADMIN_PASSWORD ([770b06d](https://github.com/romatrooy/booking-with-ai/commit/770b06d))
 * docs(changelog): записи feat(admin) и chore(format) ([9109106](https://github.com/romatrooy/booking-with-ai/commit/9109106))
 * docs(changelog): запись feat(smtp) ([fd7aeae](https://github.com/romatrooy/booking-with-ai/commit/fd7aeae))
 * docs(changelog): запись fix(web): Content-Type на POST без тела ([585adfd](https://github.com/romatrooy/booking-with-ai/commit/585adfd))
