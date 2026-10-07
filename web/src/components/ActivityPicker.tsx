@@ -9,11 +9,7 @@ interface Props {
 // Список доступных активностей. Гость выбирает, на какую активность
 // записываться. Сделан как группа радио-кнопок: один выбор, без JS —
 // работает как обычная форма.
-export function ActivityPicker({
-  activities,
-  selectedId,
-  onSelect,
-}: Props) {
+export function ActivityPicker({ activities, selectedId, onSelect }: Props) {
   if (activities.length === 0) {
     return <p className="empty">Активностей пока нет</p>;
   }

@@ -31,7 +31,9 @@ function seed() {
   const here = dirname(fileURLToPath(import.meta.url));
   const projectRoot = resolve(here, "..", "..");
   const raw = process.env["BOOKING_DB_FILE"];
-  const dbFile = raw ? resolve(projectRoot, raw) : resolve(projectRoot, "booking.db");
+  const dbFile = raw
+    ? resolve(projectRoot, raw)
+    : resolve(projectRoot, "booking.db");
 
   if (existsSync(dbFile)) {
     // Не удаляем файл целиком (на Windows он может быть залочен

@@ -129,10 +129,7 @@ export function createBooking(input: BookingCreate): Promise<Booking> {
 }
 
 export function cancelBooking(booking_id: number): Promise<Booking> {
-  return request<Booking>(
-    "POST",
-    `/api/bookings/${booking_id}/cancel`,
-  );
+  return request<Booking>("POST", `/api/bookings/${booking_id}/cancel`);
 }
 
 export function listBookings(guest_email?: string): Promise<Booking[]> {
@@ -227,8 +224,5 @@ export function listAdminSchedules(activity_id?: number): Promise<unknown[]> {
 }
 
 export function cancelAdminBooking(booking_id: number): Promise<Booking> {
-  return request<Booking>(
-    "POST",
-    `/api/admin/bookings/${booking_id}/cancel`,
-  );
+  return request<Booking>("POST", `/api/admin/bookings/${booking_id}/cancel`);
 }

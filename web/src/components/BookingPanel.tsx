@@ -39,7 +39,10 @@ export function BookingPanel({ slot, onBook, onCancel, onShowPrivacy }: Props) {
 
 interface FormProps {
   slot: Slot;
-  onBook: (input: { guest_name: string; guest_email: string }) => Promise<Booking>;
+  onBook: (input: {
+    guest_name: string;
+    guest_email: string;
+  }) => Promise<Booking>;
   onCancel: () => void;
   onShowPrivacy: () => void;
 }
@@ -103,7 +106,9 @@ function BookForm({ slot, onBook, onCancel, onShowPrivacy }: FormProps) {
       <h2>Запись на встречу</h2>
       <p className="booking-panel__line">
         <span className="booking-panel__date">{slot.date}</span>
-        <span className="booking-panel__time">{shortTime(slot.start_time)}</span>
+        <span className="booking-panel__time">
+          {shortTime(slot.start_time)}
+        </span>
         <span className="booking-panel__duration">
           {slot.duration_minutes} мин
         </span>

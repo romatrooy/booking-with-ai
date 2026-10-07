@@ -81,7 +81,11 @@ describe("POST /api/admin/login", () => {
       payload: { login: "admin", password: "Pas!_123" },
     });
     expect(res.statusCode).toBe(200);
-    const body = res.json() as { ok: boolean; login: string; attempts_left: number };
+    const body = res.json() as {
+      ok: boolean;
+      login: string;
+      attempts_left: number;
+    };
     expect(body.ok).toBe(true);
     expect(body.login).toBe("admin");
     expect(body.attempts_left).toBe(5);

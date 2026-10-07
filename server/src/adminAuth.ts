@@ -47,10 +47,7 @@ function buildHashedPassword(plain: string): string {
 // типизирует `compare` как `Promise<boolean>` (по образцу
 // нативного `bcrypt`). Используем `compareSync` — он и в
 // самой библиотеке, и в типах синхронный.
-export function checkPassword(
-  plain: string,
-  hashedReference: string,
-): boolean {
+export function checkPassword(plain: string, hashedReference: string): boolean {
   try {
     return bcrypt.compareSync(plain, hashedReference);
   } catch {
@@ -207,4 +204,3 @@ export function buildAdminCredentials(
     },
   };
 }
-

@@ -51,11 +51,7 @@ export function AdminLoginModal({ onClose, onSuccess }: Props) {
   }
 
   return (
-    <div
-      className="modal-backdrop"
-      role="presentation"
-      onClick={onClose}
-    >
+    <div className="modal-backdrop" role="presentation" onClick={onClose}>
       <div
         className="modal"
         role="dialog"
@@ -107,9 +103,7 @@ export function AdminLoginModal({ onClose, onSuccess }: Props) {
           <button
             type="submit"
             className="modal__submit"
-            disabled={
-              submitting || login.length === 0 || password.length === 0
-            }
+            disabled={submitting || login.length === 0 || password.length === 0}
           >
             {submitting ? "Отправляем…" : "Войти"}
           </button>

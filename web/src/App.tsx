@@ -98,10 +98,7 @@ export function App() {
     setRoute(next);
   }, []);
 
-  const activities = useLoader(
-    () => listActivities(),
-    [],
-  );
+  const activities = useLoader(() => listActivities(), []);
 
   // Выбираем первую активность по умолчанию, когда список приходит.
   useEffect(() => {
@@ -118,13 +115,14 @@ export function App() {
   const dateFrom = weekStart;
   const dateTo = endOfWeekIso(weekStart);
 
-  const slots = useLoader(
-    async () => {
-      if (activityId === null) return [];
-      return listSlots({ activity_id: activityId, date_from: dateFrom, date_to: dateTo });
-    },
-    [activityId, dateFrom, dateTo],
-  );
+  const slots = useLoader(async () => {
+    if (activityId === null) return [];
+    return listSlots({
+      activity_id: activityId,
+      date_from: dateFrom,
+      date_to: dateTo,
+    });
+  }, [activityId, dateFrom, dateTo]);
 
   // При смене активности или недели сбрасываем выбор слота: слот
   // относится к конкретному дню и активности, и в новом контексте

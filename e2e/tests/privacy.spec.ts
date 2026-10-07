@@ -91,9 +91,7 @@ test.describe("e2e: пользовательский сценарий", () => {
     // с уже введёнными (если бы они сохранились).
     await page.getByRole("button", { name: /К записи/ }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(
-      page.getByRole("textbox", { name: "Имя" }),
-    ).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "Имя" })).toBeVisible();
     await page.getByRole("textbox", { name: "Имя" }).fill(`E2E ${stamp}`);
     await page
       .getByRole("textbox", { name: "Электронная почта" })
@@ -119,7 +117,10 @@ test.describe("e2e: пользовательский сценарий", () => {
     ).toBeVisible();
   });
 
-  test("ссылка в футере главной открывает политику", async ({ page, request }) => {
+  test("ссылка в футере главной открывает политику", async ({
+    page,
+    request,
+  }) => {
     if (await skipIfNoActivities(request)) {
       test.skip(true, "БД пуста: прогон `npm run seed` пропущен");
       return;

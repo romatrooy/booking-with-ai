@@ -187,25 +187,19 @@ export const adminRoutes: FastifyPluginAsync = async (fastify) => {
     return listSchedules(fastify.db);
   });
 
-  fastify.post(
-    "/api/admin/bookings/:booking_id/cancel",
-    async (request) => {
-      requireAdmin(request, fastify.sessionSecret);
-      const { booking_id } = parseOrThrow(
-        request.params,
-        bookingIdParamSchema,
-      );
-      const cancelled = cancelBooking(fastify.db, booking_id);
-      if (cancelled === null) {
-        const existing = getBooking(fastify.db, booking_id);
-        if (existing === null) {
-          throw new ApiError("booking_not_found");
-        }
-        throw new ApiError("booking_already_cancelled");
+  fastify.post("/api/admin/bookings/:booking_id/cancel", async (request) => {
+    requireAdmin(request, fastify.sessionSecret);
+    const { booking_id } = parseOrThrow(request.params, bookingIdParamSchema);
+    const cancelled = cancelBooking(fastify.db, booking_id);
+    if (cancelled === null) {
+      const existing = getBooking(fastify.db, booking_id);
+      if (existing === null) {
+        throw new ApiError("booking_not_found");
       }
-      return cancelled;
-    },
-  );
+      throw new ApiError("booking_already_cancelled");
+    }
+    return cancelled;
+  });
 };
 
 // Фабрика, которая собирает объект `adminCredentials` и кладёт
@@ -222,4 +216,3 @@ export function setupAdmin(
   // используется здесь — `app.decorate("db", db)` уже стоит).
   void db;
 }
-

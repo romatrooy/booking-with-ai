@@ -1,8 +1,4 @@
-import {
-  endOfWeekIso,
-  formatIso,
-  shiftWeekIso,
-} from "../dates.ts";
+import { endOfWeekIso, formatIso, shiftWeekIso } from "../dates.ts";
 
 interface Props {
   weekStart: string; // «ГГГГ-ММ-ДД», понедельник

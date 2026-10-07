@@ -64,15 +64,15 @@ Cookie отдаётся с флагами `HttpOnly; SameSite=Lax; Path=/; Max-A
 
 ### API
 
-| Метод | Путь | Доступ | Описание |
-| --- | --- | --- | --- |
-| `POST` | `/api/admin/login` | без cookie | вход, ставит cookie |
-| `POST` | `/api/admin/logout` | любая | очищает cookie |
-| `GET`  | `/api/admin/me` | любая | `logged_in: boolean` |
-| `GET`  | `/api/admin/bookings` | админ | все брони с `activity_name` |
-| `GET`  | `/api/admin/activities` | админ | все активности |
-| `GET`  | `/api/admin/schedules` | админ | все расписания |
-| `POST` | `/api/admin/bookings/{id}/cancel` | админ | отмена любой брони |
+| Метод  | Путь                              | Доступ     | Описание                    |
+| ------ | --------------------------------- | ---------- | --------------------------- |
+| `POST` | `/api/admin/login`                | без cookie | вход, ставит cookie         |
+| `POST` | `/api/admin/logout`               | любая      | очищает cookie              |
+| `GET`  | `/api/admin/me`                   | любая      | `logged_in: boolean`        |
+| `GET`  | `/api/admin/bookings`             | админ      | все брони с `activity_name` |
+| `GET`  | `/api/admin/activities`           | админ      | все активности              |
+| `GET`  | `/api/admin/schedules`            | админ      | все расписания              |
+| `POST` | `/api/admin/bookings/{id}/cancel` | админ      | отмена любой брони          |
 
 Код ошибки один: `unauthorized: 401`. Он покрывает все случаи
 (нет cookie, неверный пароль, истёкшая сессия, превышен лимит).

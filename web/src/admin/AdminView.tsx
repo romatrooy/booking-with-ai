@@ -34,13 +34,14 @@ export function AdminView({ login, onLogout }: Props) {
     [],
   );
 
-  const activities = useLoader(
-    () => listAdminActivities(),
-    [],
-  );
+  const activities = useLoader(() => listAdminActivities(), []);
 
   // Выбираем первую активность по умолчанию.
-  if (activityId === null && activities.data !== null && activities.data.length > 0) {
+  if (
+    activityId === null &&
+    activities.data !== null &&
+    activities.data.length > 0
+  ) {
     const first = activities.data[0];
     if (first !== undefined) {
       setActivityId(first.id);
@@ -50,30 +51,21 @@ export function AdminView({ login, onLogout }: Props) {
   const dateFrom = weekStart;
   const dateTo = endOfWeekIso(weekStart);
 
-  const slots = useLoader(
-    async () => {
-      if (activityId === null) return [];
-      return listSlots({
-        activity_id: activityId,
-        date_from: dateFrom,
-        date_to: dateTo,
-      });
-    },
-    [activityId, dateFrom, dateTo],
-  );
+  const slots = useLoader(async () => {
+    if (activityId === null) return [];
+    return listSlots({
+      activity_id: activityId,
+      date_from: dateFrom,
+      date_to: dateTo,
+    });
+  }, [activityId, dateFrom, dateTo]);
 
   // Брони выбранной активности — нужны для подписей в сетке.
   // Перезагружаем при смене активности и при отмене.
-  const allBookings = useLoader(
-    () => listAdminBookings(),
-    [],
-  );
+  const allBookings = useLoader(() => listAdminBookings(), []);
 
   // Синхронизируем `activityBookings` с `allBookings.data`.
-  if (
-    allBookings.data !== null &&
-    activityId !== null
-  ) {
+  if (allBookings.data !== null && activityId !== null) {
     const filtered = allBookings.data.filter(
       (b) => b.activity_id === activityId,
     );
@@ -85,7 +77,9 @@ export function AdminView({ login, onLogout }: Props) {
         filtered.length === activityBookings.length &&
         filtered.every((b, i) => {
           const prev = activityBookings[i];
-          return prev !== undefined && prev.id === b.id && prev.status === b.status;
+          return (
+            prev !== undefined && prev.id === b.id && prev.status === b.status
+          );
         });
       if (!same) setActivityBookings(filtered);
     }
@@ -106,11 +100,7 @@ export function AdminView({ login, onLogout }: Props) {
     <div className="app">
       <header className="app__header">
         <h1>Администратор: {login}</h1>
-        <button
-          type="button"
-          className="app__header-action"
-          onClick={onLogout}
-        >
+        <button type="button" className="app__header-action" onClick={onLogout}>
           Выйти
         </button>
       </header>
