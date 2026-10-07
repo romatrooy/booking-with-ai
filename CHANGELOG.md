@@ -5,6 +5,7 @@
 
 ## 1.0.0 (2026-10-07)
 
+* docs(changelog): записи feat(admin) и chore(format) ([9109106](https://github.com/romatrooy/booking-with-ai/commit/9109106))
 * chore(format): прогнать prettier по всему репозиторию ([0fc27d4](https://github.com/romatrooy/booking-with-ai/commit/0fc27d4))
 * feat(admin): режим администратора с bcryptjs-cookie сессией и таблицей броней ([7f95897](https://github.com/romatrooy/booking-with-ai/commit/7f95897))
 * feat(web): страница «Политика конфиденциальности» и UI-тест ([b335afd](https://github.com/romatrooy/booking-with-ai/commit/b335afd))

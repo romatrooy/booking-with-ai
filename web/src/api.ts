@@ -75,12 +75,19 @@ async function request<T>(
   // (тот же origin).
   credentials: RequestCredentials = "include",
 ): Promise<T> {
+  // `Content-Type: application/json` ставим **только** когда есть
+  // тело. Fastify 5 иначе отвечает 400 «Body cannot be empty when
+  // content-type is set to 'application/json'» на пустой POST —
+  // это ломает `cancelAdminBooking`, `adminLogout`, `cancelBooking`,
+  // все три отправляются без тела.
   const init: RequestInit = {
     method,
-    headers: { "Content-Type": "application/json" },
     credentials,
   };
-  if (body !== undefined) init.body = JSON.stringify(body);
+  if (body !== undefined) {
+    init.headers = { "Content-Type": "application/json" };
+    init.body = JSON.stringify(body);
+  }
   const res = await fetch(url, init);
   if (!res.ok) {
     let parsed: ApiErrorBody;
