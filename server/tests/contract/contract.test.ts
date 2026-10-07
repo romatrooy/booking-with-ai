@@ -29,17 +29,27 @@ function makeConfig(): Config {
     dbFile: ":memory:",
     webDir: resolve(here, "..", "..", "..", "web", "dist"),
     webOrigin: "http://localhost:5173",
+    adminLogin: "test-admin",
+    adminPassword: "test-pass-123",
+    sessionSecret: "test-secret-32-bytes-long-1234",
   };
 }
 
 describe("contract: соответствие API contract/openapi.yaml", () => {
-  it("контракт содержит все восемь эндпоинтов", () => {
+  it("контракт содержит все эндпоинты (гостевые и админские)", () => {
     const expected = [
       "/api/activities",
       "/api/schedules",
       "/api/slots",
       "/api/bookings",
       "/api/bookings/{booking_id}/cancel",
+      "/api/admin/login",
+      "/api/admin/logout",
+      "/api/admin/me",
+      "/api/admin/bookings",
+      "/api/admin/activities",
+      "/api/admin/schedules",
+      "/api/admin/bookings/{booking_id}/cancel",
     ];
     for (const path of expected) {
       expect(openapi, `OpenAPI должен содержать путь ${path}`).toContain(path);
@@ -58,6 +68,13 @@ describe("contract: соответствие API contract/openapi.yaml", () => {
       "BookingStatus",
       "Weekday",
       "ApiError",
+      // Админские схемы TypeSpec кладёт в namespace `Admin`, поэтому
+      // в OpenAPI они появляются как `Admin.LoginRequest` и т. п.
+      "Admin.LoginRequest",
+      "Admin.LoginResponse",
+      "Admin.MeResponse",
+      "Admin.AdminBookingRow",
+      "Admin.AdminError",
     ]) {
       expect(openapi, `OpenAPI должен содержать схему ${schema}`).toContain(
         `${schema}:`,
@@ -83,6 +100,7 @@ describe("contract: соответствие API contract/openapi.yaml", () => {
       "slot_not_found",
       "invalid_time_window",
       "invalid_date_range",
+      "unauthorized",
     ];
     for (const code of expectedCodes) {
       const entry = errors[code as keyof typeof errors];
@@ -117,6 +135,13 @@ describe("contract: соответствие API contract/openapi.yaml", () => {
         { method: "GET", url: "/api/bookings" },
         { method: "POST", url: "/api/bookings" },
         { method: "POST", url: "/api/bookings/:booking_id/cancel" },
+        { method: "POST", url: "/api/admin/login" },
+        { method: "POST", url: "/api/admin/logout" },
+        { method: "GET", url: "/api/admin/me" },
+        { method: "GET", url: "/api/admin/bookings" },
+        { method: "GET", url: "/api/admin/activities" },
+        { method: "GET", url: "/api/admin/schedules" },
+        { method: "POST", url: "/api/admin/bookings/:booking_id/cancel" },
       ];
       for (const { method, url } of expectedRoutes) {
         // `app.hasRoute` принимает в Fastify 5 первый аргумент

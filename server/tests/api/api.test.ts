@@ -20,6 +20,9 @@ function makeConfig(): Config {
     dbFile: ":memory:",
     webDir: ".",
     webOrigin: "http://localhost:5173",
+    adminLogin: "test-admin",
+    adminPassword: "test-pass-123",
+    sessionSecret: "test-secret-32-bytes-long-1234",
   };
 }
 

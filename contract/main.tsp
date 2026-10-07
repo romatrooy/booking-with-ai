@@ -202,3 +202,114 @@ interface Bookings {
     @path booking_id: int32,
   ): Booking | ApiError;
 }
+
+// ─── Администратор ─────────────────────────────────────────────────────────
+//
+// Один логин и пароль из переменных окружения. Сессия в подписанной
+// cookie `admin_session`, см. server/src/adminAuth.ts и ADR 0004.
+
+@route("/api/admin")
+namespace Admin {
+  // Тело запроса на вход. Поля `login` и `password` проверяются на
+  // сервере через bcryptjs (хранение в env, не в БД).
+  model LoginRequest {
+    @minLength(1)
+    @maxLength(100)
+    login: string;
+
+    @minLength(1)
+    @maxLength(200)
+    password: string;
+  }
+
+  // Успешный ответ на вход. Поле `attempts_left` отдаётся и в
+  // успехе, и в ошибке — клиенту нужно показывать «осталось N
+  // попыток» в одном и том же модальном окне.
+  model LoginResponse {
+    ok: boolean;
+    login: string;
+    attempts_left: int32;
+  }
+
+  // Текущая сессия. Поле `logged_in` всегда присутствует, `login` —
+  // только когда залогинен. Используется при загрузке страницы,
+  // чтобы понять, открывать модалку или админ-режим.
+  model MeResponse {
+    logged_in: boolean;
+    login?: string;
+  }
+
+  // Строка брони в админ-таблице. Расширяет `Booking` именем
+  // активности, чтобы таблица была самодостаточной.
+  model AdminBookingRow {
+    id: int32;
+    activity_id: int32;
+    activity_name: string;
+    date: string;
+    start_time: string;
+    guest_name: string;
+    guest_email: string;
+    status: BookingStatus;
+    created_at: string;
+  }
+
+  // Тело ошибки админки. Код `unauthorized` один на все случаи:
+  // нет cookie, неверный пароль, истёкшая сессия, превышен лимит
+  // попыток. Поле `attempts_left` приходит только в ответе на
+  // `/login` (успех или ошибка).
+  @error
+  model AdminError {
+    code: "unauthorized";
+    message: string;
+    attempts_left?: int32;
+  }
+
+  @post
+  @route("/login")
+  op login(
+    @body body: LoginRequest,
+  ): {
+    @statusCode statusCode: 200;
+    @body body: LoginResponse;
+  } | AdminError;
+
+  @post
+  @route("/logout")
+  op logout(): {
+    @statusCode statusCode: 200;
+    @body body: { ok: boolean };
+  };
+
+  @get
+  @route("/me")
+  op me(): {
+    @statusCode statusCode: 200;
+    @body body: MeResponse;
+  };
+
+  @get
+  @route("/bookings")
+  op listBookings(
+    @query activity_id?: int32,
+    @query date_from?: string,
+    @query date_to?: string,
+  ): AdminBookingRow[] | AdminError;
+
+  @get
+  @route("/activities")
+  op listActivities(): Activity[] | AdminError;
+
+  @get
+  @route("/schedules")
+  op listSchedules(
+    @query activity_id?: int32,
+  ): Schedule[] | AdminError;
+
+  // Отмена брони администратором. Повторяет путь гостевой отмены,
+  // но требует валидной сессии администратора.
+  @post
+  @route("/bookings/{booking_id}/cancel")
+  op cancelBooking(
+    @path booking_id: int32,
+  ): Booking | AdminError | ApiError;
+}

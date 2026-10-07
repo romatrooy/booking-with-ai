@@ -14,6 +14,7 @@ import fastifyStatic from "@fastify/static";
 import { type Db } from "./db.js";
 import { ApiError, type ErrorResponseBody } from "./errors.js";
 import { activitiesRoutes } from "./routes/activities.js";
+import { adminRoutes, setupAdmin } from "./routes/admin.js";
 import { bookingsRoutes } from "./routes/bookings.js";
 import { schedulesRoutes } from "./routes/schedules.js";
 import { slotsRoutes } from "./routes/slots.js";
@@ -48,19 +49,38 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   // напрямую).
   app.decorate("db", db);
 
+  // Учётные данные администратора и секрет сессии — в замыкании
+  // фабрики `setupAdmin` (см. `routes/admin.ts`).
+  setupAdmin(app, config, db);
+
+  // Предупреждения в лог. Решение в ADR 0004: в проде логин/пароль
+  // и секрет сессии должны быть заданы явно. Если используются
+  // dev-значения, печатаем `warn`, чтобы это было видно в логах.
+  if (config.adminLogin === "admin" && config.adminPassword === "Pas!_123") {
+    app.log.warn(
+      "Администратор работает с логином и паролем по умолчанию. " +
+        "Задайте BOOKING_ADMIN_LOGIN и BOOKING_ADMIN_PASSWORD для прода.",
+    );
+  }
+
   // CORS нужен для dev-режима: веб на 5173 ходит на сервис на 8000.
   // В собранном виде web/dist отдаётся тем же сервером — CORS не
-  // нужен, но и не мешает.
+  // нужен, но и не мешает. `credentials: true` разрешает передачу
+  // cookie `admin_session` из браузера.
   await app.register(fastifyCors, {
     origin: config.webOrigin,
     methods: ["GET", "POST"],
+    credentials: true,
   });
 
-  // Подключаем все маршруты.
+  // Подключаем все маршруты. Админские — после обычных: `notFound`
+  // отдаёт `route_not_found` для любого `/api/admin/...` если
+  // маршрут не зарегистрирован.
   await app.register(activitiesRoutes);
   await app.register(schedulesRoutes);
   await app.register(slotsRoutes);
   await app.register(bookingsRoutes);
+  await app.register(adminRoutes);
 
   // Собранный интерфейс отдаётся тем же сервисом, поэтому в промышленном
   // запуске нет ни второго порта, ни настроек междоменных запросов.

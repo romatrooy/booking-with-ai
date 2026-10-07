@@ -8,7 +8,12 @@
 // здесь, в одном месте, а не размазывать по обработчикам.
 
 import type { Db } from "./db.js";
-import type { Activity, Booking, Schedule } from "./schemas.js";
+import type {
+  Activity,
+  AdminBookingRow,
+  Booking,
+  Schedule,
+} from "./schemas.js";
 import type { BusySlot } from "./slotEngine.js";
 import { weekdaysFromJson, weekdaysToJson } from "./slotEngine.js";
 
@@ -236,4 +241,79 @@ export function listBusySlots(
     "SELECT activity_id, date, start_time FROM bookings WHERE activity_id = ? AND status = 'active' AND date BETWEEN ? AND ?",
   );
   return stmt.all(activityId, dateFrom, dateTo);
+}
+
+// ─── Admin ──────────────────────────────────────────────────────────────────
+
+// Строка результата `listBookingsForAdmin`: бронь + имя активности
+// через LEFT JOIN. Имя приходит как `string | null` из SQLite —
+// превращаем в пустую строку, если его вдруг нет (активность
+// удалили при `ON DELETE CASCADE`, и тогда такой строки не будет,
+// но Zod всё равно проверит, что `activity_name` непустое).
+interface AdminBookingRowDb {
+  id: number;
+  activity_id: number;
+  activity_name: string | null;
+  date: string;
+  start_time: string;
+  guest_name: string;
+  guest_email: string;
+  status: string;
+  created_at: string;
+}
+
+export interface AdminBookingsFilters {
+  activityId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+// Все брони для админ-таблицы. Фильтры опциональны и
+// комбинируются через `AND`. Сортировка — по дате и времени
+// (хронологический порядок), чтобы в таблице было удобно
+// листать глазами сверху вниз.
+export function listBookingsForAdmin(
+  db: Db,
+  filters: AdminBookingsFilters = {},
+): AdminBookingRow[] {
+  const where: string[] = [];
+  const params: (string | number)[] = [];
+  if (filters.activityId !== undefined) {
+    where.push("b.activity_id = ?");
+    params.push(filters.activityId);
+  }
+  if (filters.dateFrom !== undefined) {
+    where.push("b.date >= ?");
+    params.push(filters.dateFrom);
+  }
+  if (filters.dateTo !== undefined) {
+    where.push("b.date <= ?");
+    params.push(filters.dateTo);
+  }
+  const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
+  const sql = `
+    SELECT b.id, b.activity_id, a.name AS activity_name, b.date, b.start_time,
+           b.guest_name, b.guest_email, b.status, b.created_at
+    FROM bookings b
+    LEFT JOIN activities a ON a.id = b.activity_id
+    ${whereSql}
+    ORDER BY b.date ASC, b.start_time ASC, b.id ASC
+  `;
+  // Тип `Statement<...>` в better-sqlite3 принимает кортеж. У нас
+  // параметры гетерогенные, поэтому используем `unknown[]` и
+  // утверждаем тип. Прямой `prepare<string, AdminBookingRowDb>`
+  // с spread даёт ошибку TS2556: spread требует tuple type.
+  const stmt = db.prepare<unknown[], AdminBookingRowDb>(sql);
+  const rows = stmt.all(...(params as unknown[]));
+  return rows.map((row) => ({
+    id: row.id,
+    activity_id: row.activity_id,
+    activity_name: row.activity_name ?? "",
+    date: row.date,
+    start_time: row.start_time,
+    guest_name: row.guest_name,
+    guest_email: row.guest_email,
+    status: row.status as AdminBookingRow["status"],
+    created_at: row.created_at,
+  }));
 }

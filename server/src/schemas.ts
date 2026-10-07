@@ -150,3 +150,43 @@ export const bookingIdParamSchema = z.object({
 });
 
 export type BookingIdParam = z.infer<typeof bookingIdParamSchema>;
+
+// ─── Admin ──────────────────────────────────────────────────────────────────
+
+// Тело запроса на вход администратора. Логин сравнивается как
+// обычная строка, пароль — через `bcryptjs.compare` с хешем, который
+// сервер считает при старте из `BOOKING_ADMIN_PASSWORD`.
+export const adminLoginSchema = z.object({
+  login: z.string().min(1).max(100),
+  password: z.string().min(1).max(200),
+});
+
+export type AdminLogin = z.infer<typeof adminLoginSchema>;
+
+// Параметры фильтра для `GET /api/admin/bookings`. Все опциональны.
+// Даты валидируются тем же `dateString`, что и для гостевых
+// эндпоинтов. Диапазон ≤60 дней не проверяем здесь — для
+// админ-таблицы это лишнее ограничение.
+export const adminBookingsQuerySchema = z.object({
+  activity_id: z.coerce.number().int().positive().optional(),
+  date_from: dateString.optional(),
+  date_to: dateString.optional(),
+});
+
+export type AdminBookingsQuery = z.infer<typeof adminBookingsQuerySchema>;
+
+// Строка в админ-таблице. `activity_name` приходит из JOIN с
+// `activities` в `repository.listBookingsForAdmin`.
+export const adminBookingRowSchema = z.object({
+  id: z.number().int().positive(),
+  activity_id: z.number().int().positive(),
+  activity_name: z.string(),
+  date: dateString,
+  start_time: timeString,
+  guest_name: z.string().min(1).max(100),
+  guest_email: z.string().min(1).max(200),
+  status: z.enum(["active", "cancelled"]),
+  created_at: z.string(),
+});
+
+export type AdminBookingRow = z.infer<typeof adminBookingRowSchema>;

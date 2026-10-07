@@ -13,9 +13,16 @@
 // обновляется через `history.pushState`, чтобы пользователь мог
 // перейти по прямой ссылке и вернуться назад через кнопку браузера.
 // На сервере SPA-fallback уже настроен в `server/src/app.ts`.
+//
+// Дополнительно здесь живёт состояние админ-режима: если
+// пользователь залогинился (`adminLogin !== null`), мы рендерим
+// `<AdminView>` вместо гостевого. Гостевой режим при этом доступен
+// без входа (согласовано: бронь без регистрации).
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  adminLogout,
+  adminMe,
   createBooking,
   listActivities,
   listSlots,
@@ -28,6 +35,8 @@ import { WeekBar } from "./components/WeekBar.tsx";
 import { SlotGrid } from "./components/SlotGrid.tsx";
 import { BookingPanel } from "./components/BookingPanel.tsx";
 import { Privacy } from "./privacy/Privacy.tsx";
+import { AdminLoginModal } from "./admin/AdminLoginModal.tsx";
+import { AdminView } from "./admin/AdminView.tsx";
 
 // Маршруты приложения. Один экран — один путь. Закрытый союз
 // `Route` страхует от опечаток: при добавлении экрана TypeScript
@@ -48,6 +57,29 @@ export function App() {
   const [weekStart, setWeekStart] = useState<string>(initialWeek);
   const [selected, setSelected] = useState<Slot | null>(null);
   const [route, setRoute] = useState<Route>(() => readRoute());
+  // Админ-состояние. `login === null` — не залогинен.
+  const [adminLogin, setAdminLogin] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // При первом монтировании проверяем, есть ли валидная cookie.
+  // Это нужно, чтобы после рестарта сервера пользователь не
+  // остался «залогиненным» в UI.
+  useEffect(() => {
+    let cancelled = false;
+    adminMe()
+      .then((res) => {
+        if (cancelled) return;
+        if (res.logged_in && res.login !== undefined) {
+          setAdminLogin(res.login);
+        }
+      })
+      .catch(() => {
+        // Тихо игнорируем: если сервер не отвечает, остаёмся гостем.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Синхронизируем состояние экрана с адресной строкой: клик по
   // «назад» в браузере должен возвращать на главную. Без
@@ -101,6 +133,23 @@ export function App() {
     setSelected(null);
   }, [activityId, weekStart]);
 
+  // Если открыт админ-режим — рендерим его, не гостевое дерево.
+  if (adminLogin !== null) {
+    return (
+      <AdminView
+        login={adminLogin}
+        onLogout={async () => {
+          try {
+            await adminLogout();
+          } catch {
+            // Тихо: cookie могли уже истечь.
+          }
+          setAdminLogin(null);
+        }}
+      />
+    );
+  }
+
   if (route === "privacy") {
     return <Privacy onBack={() => navigate("main")} />;
   }
@@ -109,6 +158,15 @@ export function App() {
     <div className="app">
       <header className="app__header">
         <h1>Запись на встречу</h1>
+        <div className="app__header-actions">
+          <button
+            type="button"
+            className="app__header-action"
+            onClick={() => setShowLoginModal(true)}
+          >
+            Войти как администратор
+          </button>
+        </div>
         {activities.status === "error" ? (
           <p className="app__error" role="alert">
             Не удалось получить список активностей: {activities.error}
@@ -172,6 +230,16 @@ export function App() {
           Политика конфиденциальности
         </button>
       </footer>
+
+      {showLoginModal ? (
+        <AdminLoginModal
+          onClose={() => setShowLoginModal(false)}
+          onSuccess={(login) => {
+            setAdminLogin(login);
+            setShowLoginModal(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

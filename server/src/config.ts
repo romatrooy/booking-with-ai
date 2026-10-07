@@ -1,6 +1,7 @@
 // Конфигурация сервиса. Значения по умолчанию соответствуют README,
 // раздел "Переменные окружения". Тип-импорты согласно AGENTS.md, раздел 9.
 
+import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -10,6 +11,16 @@ export interface Config {
   readonly dbFile: string;
   readonly webDir: string;
   readonly webOrigin: string;
+  // Логин и пароль администратора. Опциональны: если не заданы,
+  // используются dev-значения и в лог печатается предупреждение.
+  // Решение зафиксировано в ADR 0004.
+  readonly adminLogin: string;
+  readonly adminPassword: string;
+  // Секрет для подписи cookie `admin_session`. Опционален: если не
+  // задан, при старте генерируется случайная строка и попадает в лог.
+  // В проде `BOOKING_SESSION_SECRET` обязателен — иначе куки
+  // инвалидируются при каждом перезапуске.
+  readonly sessionSecret: string;
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -48,5 +59,28 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const webDir = resolve(projectRoot, webDirRaw);
   // Для CORS: по умолчанию разрешаем только локальный dev-сервер Vite.
   const webOrigin = env["BOOKING_WEB_ORIGIN"] ?? "http://localhost:5173";
-  return { port, host, dbFile, webDir, webOrigin };
+
+  // Логин/пароль администратора. Дефолт — пара `admin` / `Pas!_123`,
+  // согласовано с пользователем (см. переписку перед реализацией).
+  // Эти значения **только** для локальной разработки и печатаются в
+  // лог при старте с предупреждением.
+  const adminLogin = env["BOOKING_ADMIN_LOGIN"] ?? "admin";
+  const adminPassword = env["BOOKING_ADMIN_PASSWORD"] ?? "Pas!_123";
+
+  // Секрет сессии. Если не задан — генерируем случайно и печатаем в
+  // лог: при рестарте процесса все сессии инвалидируются, что для
+  // dev-режима нормально.
+  const sessionSecret =
+    env["BOOKING_SESSION_SECRET"] ?? randomBytes(32).toString("hex");
+
+  return {
+    port,
+    host,
+    dbFile,
+    webDir,
+    webOrigin,
+    adminLogin,
+    adminPassword,
+    sessionSecret,
+  };
 }

@@ -16,7 +16,8 @@ export type ErrorCode =
   | "validation_failed"
   | "slot_not_found"
   | "invalid_time_window"
-  | "invalid_date_range";
+  | "invalid_date_range"
+  | "unauthorized";
 
 export interface ErrorEntry {
   readonly statusCode: number;
@@ -60,6 +61,14 @@ export const errors: Record<ErrorCode, ErrorEntry> = {
     statusCode: 422,
     message: "Диапазон дат пустой или длиннее 60 дней",
   },
+  // Один код на все случаи: нет cookie, неверный пароль, истёкшая
+  // сессия, превышен лимит попыток. Согласовано с пользователем:
+  // не подсказываем, что именно неверно, но в теле ответа есть
+  // необязательное `attempts_left` (см. `AdminErrorBody`).
+  unauthorized: {
+    statusCode: 401,
+    message: "Неверный логин или пароль",
+  },
 };
 
 // `ApiError` бросается из обработчика или из слоя ниже и подхватывается
@@ -83,6 +92,15 @@ export class ApiError extends Error {
 export interface ErrorResponseBody {
   code: ErrorCode;
   message: string;
+}
+
+// Расширенное тело ошибки для админ-эндпоинтов: содержит
+// `attempts_left` после неудачной попытки входа. Поле опционально,
+// в остальных ответах его нет.
+export interface AdminErrorBody {
+  code: "unauthorized";
+  message: string;
+  attempts_left?: number;
 }
 
 // Хелпер для Zod. Fastify 5 иногда оборачивает ZodError в свой

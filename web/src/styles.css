@@ -28,11 +28,6 @@ body {
   padding: 24px 16px 48px;
 }
 
-.app__header h1 {
-  margin: 0 0 8px;
-  font-size: 24px;
-}
-
 .app__section {
   margin-top: 24px;
   background: #ffffff;
@@ -429,4 +424,312 @@ body {
   .slot-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ─── Header actions (admin login / logout) ───────────────────────────── */
+
+.app__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app__header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.app__header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.app__header-action {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.app__header-action:hover {
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+/* ─── Модалка входа ────────────────────────────────────────────────────── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+  max-width: 360px;
+  width: calc(100% - 32px);
+  padding: 20px 24px 24px;
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.modal__header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.modal__close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.modal__close:hover {
+  color: #111827;
+}
+
+.modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.modal__field input {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.modal__field input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.modal__error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.modal__submit {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.modal__submit:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.modal__submit:not(:disabled):hover {
+  background: #1d4ed8;
+}
+
+/* ─── Попап брони ─────────────────────────────────────────────────────── */
+
+.popover-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.popover {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+  max-width: 420px;
+  width: calc(100% - 32px);
+  padding: 18px 22px 22px;
+}
+
+.popover__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.popover__header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.popover__close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.popover__list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 12px;
+  margin: 0 0 14px;
+  font-size: 13px;
+}
+
+.popover__list dt {
+  color: #6b7280;
+}
+
+.popover__list dd {
+  margin: 0;
+  color: #111827;
+  word-break: break-word;
+}
+
+.popover__error {
+  margin: 0 0 10px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.popover__cancel {
+  width: 100%;
+  background: #b91c1c;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.popover__cancel:disabled {
+  background: #fca5a5;
+  cursor: not-allowed;
+}
+
+.popover__cancel:not(:disabled):hover {
+  background: #991b1b;
+}
+
+/* ─── Подпись под занятым слотом (админ-сетка) ───────────────────────── */
+
+.slot-grid__booking {
+  font-size: 11px;
+  color: #4b5563;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ─── Таблица броней ─────────────────────────────────────────────────── */
+
+.admin-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+}
+
+.admin-table th button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.admin-table th button:hover {
+  color: #1d4ed8;
+}
+
+.admin-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.admin-table__cancel {
+  background: #ffffff;
+  border: 1px solid #b91c1c;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.admin-table__cancel:hover:not(:disabled) {
+  background: #b91c1c;
+  color: #ffffff;
+}
+
+.admin-table__cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-table__empty {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.admin-table__error {
+  color: #b91c1c;
+  font-size: 13px;
+  margin: 0 0 8px;
 }

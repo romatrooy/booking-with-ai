@@ -47,8 +47,12 @@ export interface ApiErrorBody {
     | "validation_failed"
     | "slot_not_found"
     | "invalid_time_window"
-    | "invalid_date_range";
+    | "invalid_date_range"
+    | "unauthorized"
+    | "route_not_found";
   message: string;
+  // Только для админ-эндпоинтов: число оставшихся попыток входа.
+  attempts_left?: number;
 }
 
 export class ApiError extends Error {
@@ -66,10 +70,15 @@ async function request<T>(
   method: "GET" | "POST",
   url: string,
   body?: unknown,
+  // По умолчанию отправляем cookie, чтобы админская сессия
+  // работала и в dev-режиме (Vite-прокси), и в собранном виде
+  // (тот же origin).
+  credentials: RequestCredentials = "include",
 ): Promise<T> {
   const init: RequestInit = {
     method,
     headers: { "Content-Type": "application/json" },
+    credentials,
   };
   if (body !== undefined) init.body = JSON.stringify(body);
   const res = await fetch(url, init);
@@ -132,4 +141,94 @@ export function listBookings(guest_email?: string): Promise<Booking[]> {
       ? `/api/bookings?guest_email=${encodeURIComponent(guest_email)}`
       : "/api/bookings";
   return request<Booking[]>("GET", url);
+}
+
+// ─── Admin ────────────────────────────────────────────────────────────────
+
+export interface AdminBookingRow {
+  id: number;
+  activity_id: number;
+  activity_name: string;
+  date: string;
+  start_time: string;
+  guest_name: string;
+  guest_email: string;
+  status: BookingStatus;
+  created_at: string;
+}
+
+export interface AdminLoginResponse {
+  ok: boolean;
+  login: string;
+  attempts_left: number;
+}
+
+export interface AdminMeResponse {
+  logged_in: boolean;
+  login?: string;
+}
+
+export function adminLogin(
+  login: string,
+  password: string,
+): Promise<AdminLoginResponse> {
+  return request<AdminLoginResponse>("POST", "/api/admin/login", {
+    login,
+    password,
+  });
+}
+
+export function adminLogout(): Promise<{ ok: boolean }> {
+  return request<{ ok: boolean }>("POST", "/api/admin/logout");
+}
+
+export function adminMe(): Promise<AdminMeResponse> {
+  return request<AdminMeResponse>("GET", "/api/admin/me");
+}
+
+export interface AdminBookingsFilters {
+  activity_id?: number;
+  date_from?: string;
+  date_to?: string;
+}
+
+export function listAdminBookings(
+  filters: AdminBookingsFilters = {},
+): Promise<AdminBookingRow[]> {
+  const params = new URLSearchParams();
+  if (filters.activity_id !== undefined) {
+    params.set("activity_id", String(filters.activity_id));
+  }
+  if (filters.date_from !== undefined) {
+    params.set("date_from", filters.date_from);
+  }
+  if (filters.date_to !== undefined) {
+    params.set("date_to", filters.date_to);
+  }
+  const qs = params.toString();
+  const url =
+    qs.length > 0 ? `/api/admin/bookings?${qs}` : "/api/admin/bookings";
+  return request<AdminBookingRow[]>("GET", url);
+}
+
+export function listAdminActivities(): Promise<Activity[]> {
+  return request<Activity[]>("GET", "/api/admin/activities");
+}
+
+// Расписания админу нужны редко; возвращаем `unknown[]`, потому
+// что UI их сейчас не показывает, и тащить тип `Schedule` сюда
+// ради красоты — лишнее.
+export function listAdminSchedules(activity_id?: number): Promise<unknown[]> {
+  const url =
+    activity_id !== undefined
+      ? `/api/admin/schedules?activity_id=${activity_id}`
+      : "/api/admin/schedules";
+  return request<unknown[]>("GET", url);
+}
+
+export function cancelAdminBooking(booking_id: number): Promise<Booking> {
+  return request<Booking>(
+    "POST",
+    `/api/admin/bookings/${booking_id}/cancel`,
+  );
 }

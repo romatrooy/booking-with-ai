@@ -72,6 +72,14 @@ export function getWeekdayIndex(w: string): number {
   return WEEKDAY_INDEX[w as keyof typeof WEEKDAY_INDEX];
 }
 
+// «ГГГГ-ММ-ДД ЧЧ:ММ» для колонки «Создана» в админ-таблице.
+// `created_at` приходит как `2025-01-15T10:30:00.000Z` (UTC), мы
+// показываем то, что в строке, без преобразования пояса.
+export function formatDateTime(iso: string): string {
+  if (iso.length < 16) return iso;
+  return `${iso.slice(0, 10)} ${iso.slice(11, 16)}`;
+}
+
 function parseIsoUtc(iso: string): Date {
   return new Date(`${iso}T00:00:00Z`);
 }
